@@ -71,6 +71,9 @@ var feedbackView={
 			},
 			displayAnswer : function(data){
 				var q=data;
+				if (q.answer == ""){
+					this.progressbox.hide();
+				}
 				this.progressbox.append('<br><br><br><h4><b>Feedback:</b></h4><div style="display: flex">');
 				if (q.subsections.types == "video"){
 					this.progressbox.append('<br>Please watch the video between the time stamps specified to identify the correct answer for the given question.<br><b>Time stamp:</b>' + q.answer + '<br>');
@@ -101,7 +104,7 @@ var feedbackView={
 					});
 				}
 				
-				if (q.subsections.name=="T1-Reading"||q.subsections.name=="T2-Listening"){
+				if (q.subsections.name=="T1-Reading"||q.subsections.name=="T2-Listening"||q.practicelinks.length==0){
 
 				}else{
 				this.progressbox.append('<br><h4>Practice Links: </h4>');
