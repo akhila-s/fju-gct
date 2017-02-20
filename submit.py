@@ -335,10 +335,11 @@ class userDetails(ndb.Model):
     name = ndb.StringProperty(indexed=True)    
     email=ndb.StringProperty(indexed=True)
     phno = ndb.StringProperty(indexed=True)
-    street = ndb.StringProperty(indexed=True)
-    city = ndb.StringProperty(indexed=True)
-    state = ndb.StringProperty(indexed=True)
-    pincode = ndb.StringProperty(indexed=True)
+    rollno = ndb.StringProperty(indexed=True)
+    # street = ndb.StringProperty(indexed=True)
+    # city = ndb.StringProperty(indexed=True)
+    # state = ndb.StringProperty(indexed=True)
+    # pincode = ndb.StringProperty(indexed=True)
     learningcenter = ndb.StringProperty(indexed=True)
 
 class TestDetails(ndb.Model):
@@ -762,11 +763,13 @@ class registrationdataHandler(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         if user:
-            vals = json.loads(cgi.escape(self.request.body))
-            vals = vals['jsonData']
-            userDetails(name=vals['name'],email=user.email(),phno=vals['phno'],street=vals['add1'],city=vals['add2'],state=vals['add3'],pincode=vals['pincode'],learningcenter=vals['learningcenter']).put()
-            template = JINJA_ENVIRONMENT.get_template('quiz.html')
-            self.response.write(template.render())
+            # vals = json.loads(cgi.escape(self.request.body))
+            # vals = vals['jsonData']
+            # userDetails(name=vals['name'],email=user.email(),phno=vals['phno'],street=vals['add1'],city=vals['add2'],state=vals['add3'],pincode=vals['pincode'],learningcenter=vals['learningcenter']).put()
+            userDetails(name=self.request.get('name'),email=user.email(),phno=self.request.get('phone'),rollno=self.request.get('rollno'),learningcenter=self.request.get('learningcenter')).put()
+            self.redirect("/startquiz")
+            # template = JINJA_ENVIRONMENT.get_template('quiz.html')
+            # self.response.write(template.render())
         else:
             login_url = users.create_login_url(self.request.path)
             self.redirect(login_url)
