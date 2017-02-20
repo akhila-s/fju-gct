@@ -24,7 +24,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-ADMIN_USER_IDS=['narsimha.msit@gmail.com','ram@taramt.com','pg@taramt.com','ensreen@gmail.com','pendemdivya33@gmail.com']; 
+ADMIN_USER_IDS=['vy@fju.us','Vedavyas.yeleswarapu@gmail.com','pg@fju.us','praveeng1503@gmail.com']; 
 a1_start=101;a1_end=301;a2_start=301;a2_end=401;a3_start=401;a3_end=601;a4_start=601;a4_end=701;
 a5_start=701;a5_end=801;e1_start=801;e1_end=1201;e2_start=1201;e2_end=1601;e3_start=1601;e3_end=1701;
 e4_start=1701;e4_end=1801;t1_start=1801;t1_end=2201;t2_start=2201;t2_end=2601;
