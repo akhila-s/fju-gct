@@ -344,6 +344,9 @@ var questionView = {
 
 				if (q.subsections.types == "record") {
 					selectedAnswer = audiolink;
+					if (!selectedAnswer)
+						selectedAnswer = "skip";
+
 					//Wami.stopRecording();
 				}
 
@@ -409,6 +412,7 @@ var questionView = {
 				this.questionPane.append('<div><label>Please Watch the instructions:</label><br><iframe width=\"560\" height=\"315\" src=\"static/Intro-SpeakingSection.mp4\" frameborder=\"0\" allowfullscreen></iframe></div><br>');
 				this.questionPane.append('<div><label>Please Click on URL Link: &nbsp;</label><a href="http://vocaroo.com/" target="_blank">http://vocaroo.com/</a></div><br>');
 				this.questionPane.append('<div><label>Audio Link: </label><input type="text" id="audiolink"></div>');
+				this.questionPane.append('<br><label><input type="radio" name="optionsRadios" id="optionsRadios1" value="skip"> Skip Question</label>');
 				//startView.wami1.show();
 				//this.displayRecording();
 			}
