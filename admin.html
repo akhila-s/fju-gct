@@ -122,17 +122,17 @@
 		<table class="table table-bordered">
 			{% if userslist %}
 			<tr>
-				<td colspan="9" align="center"><b>List of Users</b></td>
+				<td colspan="5" align="center"><b>List of Users</b></td>
 				<td><a href="#">Download CSV</a></td>
 			</tr>
 			<tr>
 				<td align="left"><b>User EmailId</b></td>
-				<td align="left"><b>Aptitude Score</b></td>
-				<td align="left"><b>Aptitude Response Time</b></td>
+				<!-- <td align="left"><b>Aptitude Score</b></td> -->
+				<!-- <td align="left"><b>Aptitude Response Time</b></td> -->
 				<td align="left"><b>English Comprehension Score</b></td>
 				<td align="left"><b>English Comprehension Response Time</b></td>
-				<td align="left"><b>Telugu Comprehension Score</b></td>
-				<td align="left"><b>Telugu Comprehension Response Time</b></td>
+				<!-- <td align="left"><b>Telugu Comprehension Score</b></td> -->
+				<!-- <td align="left"><b>Telugu Comprehension Response Time</b></td> -->
 				<td align="left"><b>TotalScore</b></td>
 				<td align="left"><b>Total Time Taken</b></td>
 				<td><b>Rank</b></td>
@@ -140,12 +140,12 @@
 			{% for user in userslist %}
 				<tr>
 					<td align="left"><a href="/admin/userquizreport/{{user.emailid}}">{{user.emailid}}</a></td>
-					<td align="left">{{user.aptitudeScore}}</td></td>
-					<td align="left">{{user.aptituderestime}}</td>
+					<!-- <td align="left">{{user.aptitudeScore}}</td></td> -->
+					<!-- <td align="left">{{user.aptituderestime}}</td> -->
 					<td align="left">{{user.englishScore}}</td>
 					<td align="left">{{user.englishrestime}}</td>
-					<td align="left">{{user.teluguScore}}</td>
-					<td align="left">{{user.telugurestime}}</td>
+					<!-- <td align="left">{{user.teluguScore}}</td> -->
+					<!-- <td align="left">{{user.telugurestime}}</td> -->
 					<td align="left">{{user.score}}</td>
 					<td align="left">{{user.restime}}</td>
 					<td>{{loop.index}}</td>

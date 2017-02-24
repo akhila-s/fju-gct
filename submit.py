@@ -441,6 +441,48 @@ class checklogin(webapp2.RequestHandler):
                 template= JINJA_ENVIRONMENT.get_template('register.html')
             self.response.write(template.render())
 
+class checklogin(webapp2.RequestHandler):
+    """ handles authentication and redirects to quiz page """
+    def get(self):
+        user = users.get_current_user()
+        if user is None:
+            login_url = users.create_login_url(self.request.path)
+            self.redirect(login_url)
+            return
+        else:
+            ss=Response.query(Response.useremailid.emailid==user.email()).get()
+            if ss is None:
+                Response(useremailid=User(emailid=user.email(),name=user.nickname())).put()
+            sp=userDetails.query(userDetails.email==user.email()).get()
+            template=None
+            if sp is not None:
+                template= JINJA_ENVIRONMENT.get_template('quiz.html')
+            else:
+                template= JINJA_ENVIRONMENT.get_template('register.html')
+            self.response.write(template.render())
+
+class logout(webapp2.RequestHandler):
+    """ handles authentication and redirects to quiz page """
+    def get(self):
+        logout_url = users.create_logout_url(self.request.path)
+        self.redirect(logout_url)
+        # user = users.get_current_user()
+        # if user is None:
+        #     login_url = users.create_login_url(self.request.path)
+        #     self.redirect(login_url)
+        #     return
+        # else:
+        #     ss=Response.query(Response.useremailid.emailid==user.email()).get()
+        #     if ss is None:
+        #         Response(useremailid=User(emailid=user.email(),name=user.nickname())).put()
+        #     sp=userDetails.query(userDetails.email==user.email()).get()
+        #     template=None
+        #     if sp is not None:
+        #         template= JINJA_ENVIRONMENT.get_template('quiz.html')
+        #     else:
+        #         template= JINJA_ENVIRONMENT.get_template('register.html')
+        #     self.response.write(template.render())
+
 class getquizstatus(webapp2.RequestHandler):
     """ handling status of quiz sends a json file of responses"""
     def post(self):
@@ -855,5 +897,6 @@ application = webapp2.WSGIApplication([
     ('/view_audio/([^/]+)?', ViewAudioHandler),
     ('/testtime',storetime),
 	('/audio',WamiHandler),
-    ('/endtest',endtest)
+    ('/endtest',endtest),
+    ('/logout',logout)
 ], debug=True)
