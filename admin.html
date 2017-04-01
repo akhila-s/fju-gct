@@ -1,0 +1,477 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" type="text/css" href="/stylesheets/jquery.datetimepicker.min.css"></link>
+		<link rel="stylesheet" type="text/css" media="all" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>
+
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<style type="text/css">
+			.custom-date-style {
+	background-color: red !important;
+}
+.input{	
+}
+.input-wide{
+	width: 500px;
+}
+		</style>
+		<script type="text/javascript">
+		function getmail(){
+			var mail=document.getElementById("email").value;
+			document.f1.action="/admin/userquizreport/"+mail;
+			document.f1.submit();
+		}
+		function getquestion(){
+			var date=document.getElementById("dateval").value;
+			//alert(date);
+			document.f1.action="/admin/questionstatistics/"+date;
+			document.f1.submit();	
+		}
+		function getquizdetails(){
+			var filename=document.getElementById("filename").value;
+			document.f1.action="/admin/downloadcsv/"+filename;
+			document.f1.submit();
+		}
+		function getaudio(){
+			var lc=document.getElementById("learningcenter").value
+			document.f1.action="/admin/getaudiolinks/"+lc;
+			document.f1.submit();
+		}
+		function isEmail(email) {
+		  var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		  return regex.test(email);
+		}
+		function invite(){
+			var useremail = $("#useremail").val();
+			var usertype = $("#usertype").val();
+			if (isEmail(useremail)){
+				$.ajax({
+				   url: '/admin/invite',
+				   data: {
+				      useremail: useremail,
+				      usertype: usertype
+				   },
+				   error: function(data) {
+				   	  $('#info').html('<div class="alert alert-error fade in alert-dismissable"><a class="close" onclick="$(\'.alert\').hide()">×</a><strong>'+data+'</strong></div>');
+				   },
+				   success: function(data) {
+				      $('#info').html('<div class="alert alert-success fade in alert-dismissable"><a class="close" onclick="$(\'.alert\').hide()">×</a><strong>'+data+'</strong></div>');
+				   },
+				   type: 'POST'
+				});
+			}
+			setTimeOut(InviteTable.getData("/admin/loadinvites"),2000);
+		}
+		var InviteTable = {
+			getData : function (uri) {
+				$.get( uri, function( data ) {
+					data = JSON.parse(data);
+			  		InviteTable.init(data);
+				});
+			},
+			init : function (data) {
+				console.log(data)
+				//get table
+				$("#invitetablebody").html("");
+				this.table = $("#invitetablebody");
+				for(i=0;i<data.length;i++){
+					//store data
+					this.email = data[i]['useremail'];
+					this.status = data[i]['status'];
+					this.isAdmin = data[i]['isAdmin'];
+					//create elements
+					this.tr = document.createElement("tr");
+					this.td1 = document.createElement("td");
+					this.td2 = document.createElement("td");
+					this.td3 = document.createElement("td");
+					this.td4 = document.createElement("td");
+					this.actionbtn = document.createElement("a");
+					this.checkbox = document.createElement("input");
+					//add properties
+					this.tr.setAttribute('id','row'+i.toString());
+					if (this.status == 'pending') {
+						this.tr.setAttribute('class','warning');
+					}
+					var t;
+					if (this.isAdmin) {
+						t = document.createTextNode("Remove Admin");
+						this.actionbtn.appendChild(t);
+						this.actionbtn.setAttribute("href","#");
+					}else{
+						t = document.createTextNode("Block Access");
+						this.actionbtn.appendChild(t);
+						this.actionbtn.setAttribute("href","#");
+					}
+					this.checkbox.setAttribute('type','checkbox');
+					this.checkbox.setAttribute('class','invitedata');
+					
+					//render page
+					InviteTable.render();
+				}
+				
+			},
+			render : function () {
+				$("#loading").hide();
+				this.td1.appendChild(this.checkbox);
+				this.td2.append(this.email);
+				this.td3.append(this.status);
+				this.td4.appendChild(this.actionbtn);
+				this.tr.appendChild(this.td1);
+				this.tr.appendChild(this.td2);
+				this.tr.appendChild(this.td3);
+				this.tr.appendChild(this.td4);
+				this.table.append(this.tr);
+			}
+		}
+		InviteTable.getData("/admin/loadinvites")
+		</script>
+		<style type="text/css">
+			#invitetable thead tr td:nth-child(2){
+			    width:60%;
+			}
+			#invitetable tbody tr td:nth-child(2){
+			    width:60%;
+			}
+			.glyphicon.spinning {
+			    animation: spin 1s infinite linear;
+			    -webkit-animation: spin2 1s infinite linear;
+			}
+			@keyframes spin {
+			    from { transform: scale(1) rotate(0deg); }
+			    to { transform: scale(1) rotate(360deg); }
+			}
+			@-webkit-keyframes spin2 {
+			    from { -webkit-transform: rotate(0deg); }
+			    to { -webkit-transform: rotate(360deg); }
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid" style="background-color: #e9ebee">
+		<center>
+		
+		{% if home%}
+			<br>  
+		    <div class="row" style="padding: 2%">
+			    <div style="padding:0px" class="col-md-6">
+			    	<h3>Active Tests</h3>< hr>
+
+			    	<!-- <h3>Invite Students</h3><hr>
+			    	<form style="display: flex;">
+						<input style="width:75%" id="useremail" type="email" class="form-control col-md-8" placeholder="Enter an Email Address to Invite" />
+						<select style="width:15%" class="form-control" id="usertype">
+						    <option value="student" selected>Student</option>
+						    <option value="admin">Admin</option>
+						</select>
+		            	<button style="width:10%" type="button" id="invitebutton" class="btn btn-primary col-md-2" onclick="invite()">Invite</button>
+			    	</form>
+			    	<span id="info"></span>
+			    	<br>
+			    	<div class="table-responsive">
+						<table id="invitetable" class="table table-bordered">
+							<thead>
+						      <tr>
+						      	<th><input type="checkbox" id="checkall"></th>
+						        <th>Email</th>
+						        <th>Status</th>
+						        <th>Action</th>
+						      </tr>
+						    </thead>
+						    <tbody id="invitetablebody">
+						    	
+						    </tbody>  
+						</table>
+						<span id="loading" class="glyphicon glyphicon-refresh spinning" style="margin-top:-10px"></span>
+					</div> -->
+		        </div>
+		        <div  class="col-md-6" style="border:1px solid black; background-color: #fff; padding:2%">
+		        	<div class="row">
+		        		<h3 style="margin: 0px" class="col-md-10 text-left">Create Test</h3>
+		        		<button style="margin: 0px" class="col-md-2 btn btn-info">Host Test</button>
+		        	</div><hr>
+		        	<form action="" class="text-left">
+					  <div class="form-group">
+					    <label for="examid">Exam ID</label>
+					    <input type="email" class="form-control" id="examid" placeholder="This is auto-generated after csv validation" disabled>
+					  </div>
+					  <div class="form-group">
+					    <label for="datetimepicker">Test Commences At:</label>
+					    <input type="text" class="form-control" id="datetimepicker" placeholder="Click to select a date">
+					  </div>
+					  <div class="form-group">
+					  	<label for="questionset">Question Paper:</label>
+					  	<p class="help-block">Please choose a question paper.</p>
+					  	{% for set in sets %}
+						  	<div style="padding-bottom: 10px" class="input-group">
+						      <span class="input-group-addon">
+						        <input type="radio" name="questionset" value="{{set.name}}">
+						      </span>
+						      <input type="text" class="form-control" placeholder="{{set.fullName}}" disabled>
+						      <span class="input-group-btn">
+						        <a href="{{set.link}}" class="btn btn-primary" type="button">View Test</a>
+						      </span>
+						    </div>
+						{% endfor %}
+					  </div>
+					  <div class="form-group">
+					    <label for="studentscsv">Students List</label>
+					    <input type="file" id="studentscsv">
+					    <p class="help-block">(Please upload a students list in .csv format.)</p>
+					  </div>
+					  <button id="validate" type="button" class="btn btn-primary">Validate</button>
+					</form>
+					<div class="text-right" style="padding:2%; height: 300px; background-color: #fff; z-index: 999; display:none; position:absolute; bottom:0; left:0; right:0" id="passwordsNoMatchRegister">
+						<div class="col-md-12">
+							<h4 class="col-md-6 text-left">Validation Report</h4>
+				  			<a class="col-md-6" href="#" id="dismiss">Dismiss</a>
+						</div>
+						<hr class="col-md-11" style="border-top:1px solid black; margin:0px">
+				  		<p class="col-md-12 text-left" id="message"></p>
+				  	</div>
+		        </div>
+			</div><br>
+
+			<div class = "excel-upload">
+				<form method = "POST" name = "excel-form" action = "{{templateUrl}}" enctype="multipart/form-data">
+					<input type = "file" name = "excel-sheet">
+					<button type = "submit" class = "btn btn-primary "> Upload </button>
+					<a href = "/admin/{{urlDownload}}" class = "btn btn-primary "> Download </a>
+				</form>
+				<h3><FONT color = "green" > {{SuccessMsg}} </FONT></h3>
+			</div>
+
+
+			<form method="GET" name="f1">
+				<div class="row"><br></div>
+				<div class="row">
+					<div class="col-md-12">
+						<a href="/admin/adminhome">View All Tests</a><br>
+						<a href="/admin/viewqb">View Question Bank</a>
+					</div>
+				</div>
+				<div class="row"><br></div>
+				<div class="row">
+					<div class="col-md-2">
+						<label for="to">Enter Email Id:</label>
+					</div>
+					<div class="col-md-10">
+						<input type="text" name="email" id="email" class="form-control" />
+					</div>
+				</div>
+				<div class="row"><br></div>
+				<div class="row">
+					<div class="col-md-10">
+						<input type="button" value="Get Report" class="btn btn-primary" onclick="getmail()" />
+					</div>
+				</div>
+				<div class="row"><br></div>
+				<div class="row">
+					<div class="col-md-2">
+						<label for="to">Select Learning Center:</label>
+					</div>
+					<div class="col-md-10">
+						<select id="learningcenter" class="form-control">
+								<option value="Basara">Basara</option>
+								<option value="Nuzvid">Nuzvid</option>
+								<option value="RK Valley">RK Valley</option>
+								<option value="Others">Others</option>
+						</select>
+					</div>
+				</div>
+				<div class="row"><br></div>
+				<div class="row">
+					<div class="col-md-10">
+						<input type="button" value="Get Audio Links" class="btn btn-primary" onclick="getaudio()" />
+					</div>
+				</div>
+			</form>
+			<table class="table table-bordered">
+				<tr>
+					<td align="center"><b>Essay Downloads</b></td>
+					<td align="center"><a href="/admin/getessay/Basara_userids">Basara</a></td>
+					<td align="center"><a href="/admin/getessay/nuz_userids">Nuziveedu</a></td>
+					<td align="center"><a href="/admin/getessay/RKV_userids">RKV</a></td>
+					
+				</tr>
+			</table>
+			<table class="table table-bordered">
+				<tr>
+					<td align="center"><b>Mean and STD Reports </b></td>
+					<td align="center"><a href="/admin/getmeanstd/Basara_userids">Basara</a></td>
+					<td align="center"><a href="/admin/getmeanstd/nuz_userids">Nuziveedu</a></td>
+					<td align="center"><a href="/admin/getmeanstd/RKV_userids">RKV</a></td>
+				</tr>
+				<tr>
+					<td align="center"><b>Mean and STD Apti Reports </b></td>
+					<td align="center"><a href="/admin/getmeanstd_apti/Basara_userids">Basara</a></td>
+					<td align="center"><a href="/admin/getmeanstd_apti/nuz_userids">Nuziveedu</a></td>
+					<td align="center"><a href="/admin/getmeanstd_apti/RKV_userids">RKV</a></td>
+				</tr>
+				<tr>
+					<td align="center"><b>Mean and STD TOEFL Reports </b></td>
+					<td align="center"><a href="/admin/getmeanstd_toefl/Basara_userids">Basara</a></td>
+					<td align="center"><a href="/admin/getmeanstd_toefl/nuz_userids">Nuziveedu</a></td>
+					<td align="center"><a href="/admin/getmeanstd_toefl/RKV_userids">RKV</a></td>
+				</tr>
+				<tr>
+				<td align="center"><b>Mean and STD TELUGU Reports </b></td>
+					<td align="center"><a href="/admin/getMeanStd_telugu/Basara_userids">Basara</a></td>
+					<td align="center"><a href="/admin/getMeanStd_telugu/nuz_userids">Nuziveedu</a></td>
+					<td align="center"><a href="/admin/getMeanStd_telugu/RKV_userids">RKV</a></td>	
+				</tr>
+			</table>
+		{% else %}
+		<table class="table table-bordered">
+			{% if userslist %}
+			<tr>
+				<td colspan="5" align="center"><b>List of Users</b></td>
+				<td><a href="#">Download CSV</a></td>
+			</tr>
+			<tr>
+				<td align="left"><b>User EmailId</b></td>
+				<!-- <td align="left"><b>Aptitude Score</b></td> -->
+				<!-- <td align="left"><b>Aptitude Response Time</b></td> -->
+				<td align="left"><b>English Comprehension Score</b></td>
+				<td align="left"><b>English Comprehension Response Time</b></td>
+				<!-- <td align="left"><b>Telugu Comprehension Score</b></td> -->
+				<!-- <td align="left"><b>Telugu Comprehension Response Time</b></td> -->
+				<td align="left"><b>TotalScore</b></td>
+				<td align="left"><b>Total Time Taken</b></td>
+				<td><b>Rank</b></td>
+			</tr>
+			{% for user in userslist %}
+				<tr>
+					<td align="left"><a href="/admin/userquizreport/{{user.emailid}}">{{user.emailid}}</a></td>
+					<!-- <td align="left">{{user.aptitudeScore}}</td></td> -->
+					<!-- <td align="left">{{user.aptituderestime}}</td> -->
+					<td align="left">{{user.englishScore}}</td>
+					<td align="left">{{user.englishrestime}}</td>
+					<!-- <td align="left">{{user.teluguScore}}</td> -->
+					<!-- <td align="left">{{user.telugurestime}}</td> -->
+					<td align="left">{{user.score}}</td>
+					<td align="left">{{user.restime}}</td>
+					<td>{{loop.index}}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td colspan="10" align="center"><a href="/admin/adminhome"><b>Back</b></a></td>
+				</tr>
+			{% elif tests %}
+			<tr>
+				<td colspan="4" align="center"><b>List of created quizzes</b></td>
+			</tr>
+			<tr>
+				<td align="left"><b>Learning Center</b></td>
+				<td align="left"><b>Participants</b></td>
+				<td align="left"><b>Status</b></td>
+				<td></td>
+			</tr>
+			{% for key,value in tests.items()%}
+			<tr>
+				<td align="left"><a href="/admin/quizdetails/{{key}}">{{key}}</a></td>
+				<td align="left">{{value}}</td>
+				<td align="left">Open</td><td><a href="#">Send Invites</a></td>
+			</tr>
+			{%endfor%}
+			{% elif quizdata %}
+			<tr>
+				<td align="left"><a href="/admin/"><b>Back</b></a></td>
+				<td colspan="4" align="center"><b>Quiz Report</b></td>
+				<td><a href="/admin/downloadcsv_user/{{useremailid}}">Download CSV</a></td>
+			</tr>
+			<tr>
+				<td colspan="6" align="center"><b>Total Score: {{score}}</b></td>
+			</tr>
+			<tr>
+				<td align="left"><b>Question ID</b></td>
+				<td align="left"><b>Question</b></td>
+				<td align="left"><b>Score</b></td>
+				<td align="left"><b>Submitted Answer</b></td>
+				<td align="left"><b>Correct Answer</b></td>
+				<td align="left"><b>Response Time</b></td>
+			</tr>
+			{% for data in quizdata %}
+				
+				{% if data.q_score == 0 %}
+				<tr class="danger">
+				{% else %}
+				<tr class="success">
+				{% endif %}
+				<td align="left">{{loop.index}}</td><td align="left">{{questionslist[loop.index-1]}}</td><td align="left">{{data.q_score}}</td>
+				{%if loop.index == 28 %}
+				<td align="left"><a href="{{data.submittedans}}" target="_blank">{{data.submittedans}}</a></td>
+				{% else %}
+				<td align="left">{{data.submittedans}}</td>
+				{%endif%}
+				<td align="left">{{correctAnslist[loop.index-1]}}</td><td align="left">{{data.responsetime}}</td></tr>
+			{% endfor %}
+			{% elif audiodata %}
+				<tr><td align="left"><b>UserID</b></td><td align="left"><b>AudioLink</b></td></tr>
+				{% for key,value in audiodata.items()%}
+				<tr><td align="left"><a href="/admin/quizdetails/{{key}}">{{key}}</a></td><td align="left"><a href="{{value}}">{{value}}</a></td></tr>
+				{%endfor%}
+			{% else %}
+			
+			<tr><td colspan="4" align="center"><font color="red">No Data Found!</font></td></tr>
+			{% endif %}
+		</table>
+		{%endif%}
+		</center>
+		</div>
+	<script src="/javascripts/jquery.js"></script>
+	<script src="/javascripts/jquery.datetimepicker.full.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#checkall').click(function() {
+			    $('.invitedata').prop('checked', this.checked);
+			});
+			$('#datetimepicker').datetimepicker({
+			startDate: new Date(),
+			dayOfWeekStart : 1,
+			lang:'en',
+			});
+		});
+		$("#validate").click(function(){
+			test = {}
+			test["examid"] = $("#examid").val();
+			test["date"] = $("#datetimepicker").val();
+			test["questionset"] = $("#questionset").val();
+			// var fd = new FormData($('#studentcsv').get(0));
+			// console.log(fd);
+			test["csv"] = $("#studentscsv")[0].files[0].name;
+			test = JSON.stringify(test);
+			$("#message").text(test+"");
+			$('#passwordsNoMatchRegister').slideDown();
+		});
+		$("#dismiss").click(function(){
+			$('#passwordsNoMatchRegister').hide();
+		})
+	</script>
+
+	<p align="centre">
+			<button id="Log1" class="btn btn-primary" >Create test</button></p>
+			<script type="text/javascript">
+	document.getElementById("Log1").onclick = function () {
+			location.href = "/admin/adminScreen1";
+	};
+   
+</script> 
+	</body>
+</html>
+
+
+
+
+
+
+
+	
+
+ 

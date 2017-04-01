@@ -1,0 +1,84 @@
+{
+    "name": "E2-Listening",
+    "types": "video",
+    "note": "Listen to the video given and answer the following questions:",
+    "videoArray": [
+        {
+            "link": "<audio controls><source src='static/set2/elc.mp3' type='audio/mpeg'></audio>",
+            "questions": [
+                {
+                    "question": "Good, transparent governance needs",
+                    "options": [
+                        "~transportation",
+                        "=Facilitation",
+                        "~Amiability",
+                        "~Hostility"
+                    ],
+                    "id": "1201",
+                    "answer": "1:08 – 1:15secs",
+                    "practicelinks": []
+                },
+                {
+                    "question": "What is the magic, the tool which is mentioned as a weapon to clean up corruption?",
+                    "options": [
+                        "~Heavy Artillery",
+                        "~Ensuring a Police State",
+                        "=Use of Information Technology (IT)",
+                        "~None of these"
+                    ],
+                    "id": "1202",
+                    "answer": "1:35 – 1:49secs",
+                    "practicelinks": []
+                },
+                {
+                    "question": "Corruption in the grand contracts can be done away with",
+                    "options": [
+                        "~Careful design of contracts",
+                        "~More competitive processes",
+                        "~Careful design of contracts, less competitive processes",
+                        "=Careful design of contracts, more competitive processes"
+                    ],
+                    "id": "1203",
+                    "answer": "2:00 – 2:07secs",
+                    "practicelinks": []
+                },
+                {
+                    "question": "A big source of harassment for people today may be identified as",
+                    "options": [
+                        "~Bribery",
+                        "=Tax Refunds",
+                        "~False Contracts",
+                        "~Not sure"
+                    ],
+                    "id": "1204",
+                    "answer": "2:36 – 2:42secs",
+                    "practicelinks": []
+                },
+                {
+                    "question": "The biggest lessons to be learnt from countries like Singapore and Scandinavia in combating corruption ",
+                    "options": [
+                        "~Penalties",
+                        "~Levies",
+                        "=Transparency",
+                        "~None of these"
+                    ],
+                    "id": "1205",
+                    "answer": "3:38 – 3:48secs",
+                    "practicelinks": []
+                },
+                {
+                    "question": "The requirement is for a change in ___________________ to combat corruption.",
+                    "options": [
+                        "~Attitudes",
+                        "~Capabilities",
+                        "=Attitudes and Capabilities",
+                        "~None of these"
+                    ],
+                    "id": "1206",
+                    "answer": "4:12 – 4:22secs",
+                    "practicelinks": []
+                }
+            ]
+        }
+    ]
+}

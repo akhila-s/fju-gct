@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Create Exam</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/modern-business.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.datetimepicker.min.css"></link>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="admin.css"/>
+
+</head>
+
+<body>
+
+ 
+    <!-- Header Carousel -->
+    <header id="myCarousel" class="carousel slide">
+        <!-- Indicators -->
+       
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item active">
+                <div class="fill" style="background-image:url('http://placehold.it/1500x900&text=CREATE EXAM');"></div>
+               
+            </div>
+       
+
+  
+    </header>
+
+    <!-- Page Content -->
+    <div class="container">
+<div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    SELECT TEST
+                </h1>
+            </div>
+        <!-- Marketing Icons Section -->
+        
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4></i>ENGLISH LANGUAGE TEST (ELT)</h4>
+                    </div>
+                    <div class="panel-body">               
+            <input type="radio" name="English" value="ELT1"> ELT1<br>
+            <input type="radio" name="English" value="ELT2"> ELT2<br>
+            <input type="radio" name="English" value="ELT3"> ELT3
+                    
+                    </div>
+                </div>
+            </div>
+           <div class="xyz">
+       
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4></i>QUANTITATIVE APTITUDE TEST(QAT)</h4>
+                    </div>
+                    <div class="panel-body">
+                     <input type="radio" name="Math" value="QAT1"> QAT1<br>
+            <input type="radio" name="Math" value="QAT2"> QAT2<br>
+            <input type="radio" name="Math" value="QAT3"> QAT3
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- /.row -->
+
+        <!-- Portfolio Section -->
+   <div class="form-group">
+          <label for="datetimepicker">Select Date</label>
+            <input type="text" class="form-control" id="datetimepicker" placeholder="Click to select a date">
+        </div>
+        <div> 
+           <div> 
+			<p align="right">
+<button id="Log" class="btn btn-primary">Next</button></p>
+
+			<script type="text/javascript">
+document.getElementById("Log").onclick = function () {
+			location.href = "/uploadStudents";
+	};
+   
+</script>
+		</div>
+		<script src="/javascripts/jquery.js"></script>
+		<script src="/javascripts/jquery.datetimepicker.full.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function(){
+		$('#checkall').click(function() {
+		$('.invitedata').prop('checked', this.checked);
+		});
+		$('#datetimepicker').datetimepicker({
+		startDate: new Date(),
+		dayOfWeekStart : 1,
+		lang:'en',
+		});
+		});
+		$("#validate").click(function(){
+		test = {}
+		test["examid"] = $("#examid").val();
+		test["date"] = $("#datetimepicker").val();
+		test["questionset"] = $("#questionset").val();
+		var fd = new FormData($('#studentcsv').get(0));
+		console.log(fd);
+		test["csv"] = $("#studentscsv")[0].files[0].name;
+		test = JSON.stringify(test);
+		$("#message").text(test+"");
+		$('#passwordsNoMatchRegister').slideDown();
+		});
+		$("#dismiss").click(function(){
+		$('#passwordsNoMatchRegister').hide();
+		})
+		</script> 
+	</body>
+</html>
+
+
+</body>
+
+</html>

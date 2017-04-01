@@ -1,0 +1,208 @@
+<html>
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+
+  <script>$('.dropdown-toggle').dropdown();
+
+
+$('#divNewNotifications li').on('click', function() {
+    $('#dropdown_title').html($(this).find('a').html());
+    });</script>
+  <style>
+  	.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+
+table, th, td {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+
+table {
+    border-spacing: 25px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+  </style>
+</head>
+<body>
+	<h1 style="text-align:center"> Upload Students </h1>
+	<div class = "container-fluid">		
+		<a href="" class="btn btn-primary btn-md" style = "float:right" type="button"> Host Test </a>
+		<br>
+		<br>
+		<div class="col-md-12">
+			<h4>Exam ID: </h4><i>{{examid}}</i>
+			<h4>Question Paper: </h4><i>{{setname}}</i>
+			<h4>Date of Examination: </h4><i>{{datetime}}</i>
+			{% if hosted %}
+			<i>This exam is already hosted.</i>
+			{% else %}
+			<i>Not yet hosted.</i>
+			{% endif %}
+		</div>
+		<div class="col-md-7">
+			<h3>Bulk Upload</h3>
+			<hr>
+			<div class="row search">
+				<!-- <h3> Search Students By </h3> -->
+
+			   <!--  <select class="col-md-4 selectpicker" data-style="btn-success">
+			      <option>Choose campus</option>
+				  <option>Nuzvid</option>
+				  <option>RKValley</option>
+				  <option>Basara</option>
+				</select>  -->
+					
+				  <!-- </div> -->
+				<!-- </div> -->
+				<div class=" col-md-4 dropdown">
+				 <!--  <button class="dropbtn"> Choose Batch </button> -->
+				  <select class="selectpicker" data-live-search="true" data-style="btn-success">
+				  	  <option>Choose Batch</option>
+					  <option> PUC 1 </option>
+					  <option> PUC 2 </option>
+					  <option> ENGG 1 </option>
+					  <option> ENGG 2 </option>
+					  <option> ENGG 3 </option>
+					  <option> ENGG 4 </option>
+				   </select>
+				</div>
+				<div class="col-md-4 dropdown">
+
+				  <select class="selectpicker" data-style="btn-success" data-live-search="true">
+				  	  <option> Choose class </option>
+					  <option> kappa 1 </option>
+					  <option> kappa 2 </option>
+					  <option> kappa 3 </option>
+					  <option> kappa 4 </option>
+					  <option> kappa 5 </option>
+					  <option> kappa 6 </option>
+				   </select>
+
+				</div>
+			</div>
+			<br>
+			<div style="padding: 2%" class="row">
+				<table class="col-md-12">
+					  <tr>
+					    <th>student id</th>
+					    <th>student name</th>
+					    <th>student campus</th>
+					    <th>student mail</th>
+					    <th>student Batch</th>
+					    <th>student Section</th>
+
+					  </tr>
+					  <tr>
+					    <td>B081600</td>
+					    <td>Santhos</td>
+					    <td>Basara</td>
+					    <td>ananya@gmail.com</td>
+					    <th>PUC1</th>
+					    <th>kappa 1</th>
+					  </tr>
+					  <tr>
+					    <td>B081601</td>
+					    <td>Masthan</td>
+					    <td>Basara</td>
+					    <td>ananya@gmail.com</td>
+					    <th>Engg 1</th>
+					    <th>kappa 5</th>
+					  </tr>
+					  <tr>
+						<td>B081602</td>
+					    <td>Audi</td>
+					    <td>Basara</td>
+					    <td>audi@gmail.com</td>
+					    <th>Engg 3</th>
+					    <th>kappa 1</th>
+					  </tr>
+				</table>
+			</div>
+			<br>
+			<h4 class="text-center"><b>(OR)</b></h4>
+			<br>
+			<div class="form-group">
+			    <input type="file" id="studentscsv">
+			    <p class="help-block">(Please upload a students list in .csv format.)</p>
+			</div><hr>
+			<button class="btn btn-md btn-success">Submit</button>
+		</div>
+		<div class="col-md-5">
+			<h3> Add Student </h3><hr>
+			<form>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="stuname" type="text" class="form-control" name="name" placeholder="Student name">
+			  </div>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="campus" type="text" class="form-control" name="campus" placeholder="Student Campus">
+			  </div>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="rollnum" type="text" class="form-control" name="rollnum" placeholder="Student ID">
+			  </div>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="mail" type="text" class="form-control" name="mail" placeholder="Student mail">
+			  </div>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="year" type="text" class="form-control" name="Year" placeholder="Student Batch">
+			  </div>
+			  <div class="input-group">
+			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+			    <input id="Section" type="text" class="form-control" name="Section" placeholder="Student Section">
+			  </div>
+			  <hr>
+			  <button type="button" class="btn btn-success">Submit</button>
+			</form>
+		</div>
+	</div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js">
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+</html>

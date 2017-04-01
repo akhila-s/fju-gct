@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style>
+	html,body, .container{
+		height: 100%;
+		min-height: 100%;
+
+	}
+	.jumbotron { 
+		background-color: #5cb85c; /* Orange */
+		color: #ffffff;
+	}
+	.container {
+		display: flex;
+		text-align: center;
+	}
+	.left-section {
+		width: 100%;
+		height: 100%;
+		/*border-right: 1px solid black;*/
+	}
+	.right-section {
+		width: 100%;
+		height: 100%;
+	}
+	.list-group {
+		width: 98%;
+		text-align: left;
+	}
+	.glyphicon {
+		float: right;
+	}
+	.progress {
+		width: 30%;
+		height: 15px;
+		float: right;
+	}
+</style>
+<body>
+	<div class="jumbotron bg-success text-center">
+		<h1>DASHBOARD</h1>
+	</div>
+	<div>
+		<div class = "col-md-7 alert-message text-right text-danger" >
+			<h5></h5>
+		</div>
+		<div class="col-md-5 text-right">
+			<a href="/logout" class="btn btn-primary">Logout</a>
+		</div>
+	</div>
+	
+	<div class = "container">
+		
+		<div class = "left-section">
+			<h2> English Literacy Test (ELT)</h2><br>
+
+			<div id="elt" class="list-group">
+				{% for set in ELTsets %}
+					{% if set.link == "" %}
+						<a href="#" class="list-group-item disabled" data-toggle = "tooltip" title = " Test will be available on  {{set.toolTipDate}}">  {{set.fullName}} <span class="glyphicon glyphicon-lock"></span>
+					{% else %}
+						{% if set.status == "End" %}
+						    <span class="list-group-item">
+						        <span class = "active-test">{{set.fullName}}</span> 
+						       <a style = "float:right" href = "{{set.link}}" class="btn btn-success btn-xs">Test Report</a>
+								<span style = "float:right"> Your Score: {{set.score}} &nbsp;&nbsp;</span>
+						    </span>	
+						{% elif set.status == "In Progress" %}
+							<span class="list-group-item">
+						        <span class = "active-test">{{set.fullName}}</span> 
+						       <a style = "float:right" href = "{{set.link}}" class="btn btn-success btn-xs">Resume Test</a> 
+								<span style = "float:right"> Time Left: {{set.timeleft}} minutes&nbsp;&nbsp;</span>
+						    </span>
+						{% else %}
+							<span class="list-group-item">  
+						        <span class = "active-test">{{set.fullName}}</span> 
+								<a style = "float:right" href = "{{set.link}}" 
+								   class="btn btn-success btn-xs">Take Test</a>
+						    </span>
+						{% endif %}
+					{% endif %}
+					</a>
+				{% else %}
+					<p class="text-center"><em>No Test Found.</em></p>
+				{% endfor %}
+			</div>
+		</div>
+		<div class = "right-section">
+			<h2> Quantitative Aptitude Test (QAT) </h2><br>
+			<div id="qat" class="list-group">
+				{% for set in QATsets %}
+					{% if set.link == "" %}
+						<a href="#" class="list-group-item disabled" data-toggle = "tooltip" title = " Test will be available on  {{set.toolTipDate}}">  {{set.fullName}} <span class="glyphicon glyphicon-lock"></span></a>
+					{% else %}
+						{% if set.status == "End" %}
+						    <span class="list-group-item">
+						        <span class = "active-test">{{set.fullName}}</span> 
+						       <a style = "float:right" href = "{{set.link}}" class="btn btn-success btn-xs">Test Report</a>
+								<span style = "float:right"> Your Score: {{set.score}} &nbsp;&nbsp;</span>
+						    </span>	
+						{% elif set.status == "In Progress" %}
+							<span class="list-group-item">
+						        <span class = "active-test">{{set.fullName}}</span> 
+						       <a style = "float:right" href = "{{set.link}}" class="btn btn-success btn-xs">Resume Test</a> 
+								<span style = "float:right"> Time Left: {{set.timeleft}} minutes&nbsp;&nbsp;</span>
+						    </span>
+						{% else %}
+							<span class="list-group-item">  
+						        <span class = "active-test">{{set.fullName}}</span> 
+								<a style = "float:right" href = "{{set.link}}" 
+								   class="btn btn-success btn-xs">Take Test</a>
+						    </span>
+						{% endif %}
+					{% endif %}
+				{% else %}
+					<p class="text-center"><em>No Test Found.</em></p>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="javascripts/app.js"></script>
+	<script type="text/javascript" src="javascripts/quiz.js"></script>
+</body>
+</html>

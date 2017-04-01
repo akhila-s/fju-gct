@@ -1,0 +1,31 @@
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</head>
+<body class = "text-center" >
+	{% if name%}
+		<h1> USER DETAILS </h1>
+		<h4> NAME : {{name}} </h4>
+		<h4> ROLL NO: {{rollno}} </h4>
+		<h4> EMAIL ID: {{emailid}} </h4>
+		<h4> LEARNING CENTER: {{campus}} </h4>
+		<a href="/logout" class = "btn btn-primary btn-md"> LOGOUT </a>
+		<a href= "/dashboard" class = "btn btn-primary btn-md"> CONTINUE </a>
+	{%else%}
+	 	<h3> NOT A VALID USER </h3>
+	 	<h4> Kindly Contact Test Admin </h4>
+	 	<a href="/" class = "btn btn-primary btn-md"> BACK </a>
+	 	<a href="/logout" class = "btn btn-primary btn-md"> LOGIN AGAIN </a>
+	{% endif %}
+
+</body>
+</html>
