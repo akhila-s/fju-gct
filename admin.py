@@ -22,7 +22,8 @@ import time
 
 
 
-
+test= []
+currentAdminTests= []
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
@@ -210,7 +211,7 @@ class RankEntity(ndb.Model):
 class AdminDetails(ndb.Model):
   emailid=ndb.StringProperty(indexed=True)
   setname=ndb.StringProperty(indexed=True)
-  examid=ndb.IntegerProperty(indexed=True)
+  examid=ndb.StringProperty(indexed=True)
   students=ndb.StringProperty()
   datetime=ndb.DateTimeProperty(auto_now=False)
   hosted=ndb.BooleanProperty()
@@ -968,10 +969,10 @@ class getAudiolinks(webapp2.RequestHandler):
 class AdminScreen1(webapp2.RequestHandler):
     """  handles rendering of create test page """
     def get(self):
+      gin_url = users.create_login_url(self.request.path)
       user = users.get_current_user()
       if user is None:
-        login_url = users.create_login_url(self.request.path)
-        self.redirect(login_url)
+        lof.redirect(login_url)
         return
       else:
         if user.email() in ADMIN_USER_IDS:
@@ -982,9 +983,11 @@ class AdminScreen1(webapp2.RequestHandler):
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+#declearing noof tests 
 
 class CreateTest(webapp2.RequestHandler):
     def post(self):
+      global test,currentAdminTests
       user = users.get_current_user()
       if user is None:
         login_url = users.create_login_url(self.request.path)
@@ -995,8 +998,16 @@ class CreateTest(webapp2.RequestHandler):
           date = self.request.get("date")
           datetime_object = datetime.datetime.strptime(date, '%Y/%m/%d %H:%M')
           qset = self.request.get("set")
-          examid = int(time.mktime(datetime_object.timetuple()))
+          examid = self.request.get("examid")
+          # examid = int(time.mktime(datetime_object.timetuple()))
           AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False).put()
+         
+          test.append(date)
+          test.append(examid)
+          test.append(qset)
+          currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
+          currentAdminTests.append("ELT set2")
+          currentAdminTests.append("ELT set3")
           self.response.write("/admin/uploadStudents")
         else:
           users.create_logout_url('/')
@@ -1014,31 +1025,34 @@ class uploadStudents(webapp2.RequestHandler):
       else:
         if user.email() in ADMIN_USER_IDS:
           template = JINJA_ENVIRONMENT.get_template('uploadStudents.html')
-          template_values = {"sets":getsets()}
+          template_values = {"sets":getsets(),"test": test , "currentAdminTests" :currentAdminTests }
           self.response.write(template.render(template_values))
         else:
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
+
+
 application = webapp2.WSGIApplication([
     ('/admin/?',Home),
     # ('/admin/([^/]+)?',downloadExcelSheet),
     ('/admin/adminScreen1',AdminScreen1),
     ('/admin/uploadStudents',uploadStudents),
+    # ('admin/whattosend',Detailsget),
     ('/admin/createtest',CreateTest),
-    ('/admin/invite',Invite),
-    ('/admin/loadinvites',getInvites),
-    ('/admin/adminhome',AdminHome),
-    ('/admin/viewqb',ViewQB),
-    ('/admin/quizdetails/([^/]+)?',QuizDetails),
-    ('/admin/userquizreport/([^/]+)?',UserQuizReport), 
-    ('/admin/downloadcsv/([^/]+)?',DownloadCSV),
-    ('/admin/getessay/([^/]+)?',GetEssay),
-    ('/admin/getmeanstd/([^/]+)?',getMeanStd),
-    ('/admin/getmeanstd_apti/([^/]+)?',getMeanStd_Apti),
-    ('/admin/getmeanstd_toefl/([^/]+)?',getMeanStd_toefl),
-    ('/admin/getMeanStd_telugu/([^/]+)?',getMeanStd_telugu),
-    ('/admin/get_qb',get_QB),
-    ('/admin/getaudiolinks/([^/]+)?',getAudiolinks),
+    # ('/admin/invite',Invite),
+    # ('/admin/loadinvites',getInvites),
+    # ('/admin/adminhome',AdminHome),
+    # ('/admin/viewqb',ViewQB),
+    # ('/admin/quizdetails/([^/]+)?',QuizDetails),
+    # ('/admin/userquizreport/([^/]+)?',UserQuizReport), 
+    # ('/admin/downloadcsv/([^/]+)?',DownloadCSV),
+    # ('/admin/getessay/([^/]+)?',GetEssay),
+    # ('/admin/getmeanstd/([^/]+)?',getMeanStd),
+    # ('/admin/getmeanstd_apti/([^/]+)?',getMeanStd_Apti),
+    # ('/admin/getmeanstd_toefl/([^/]+)?',getMeanStd_toefl),
+    # ('/admin/getMeanStd_telugu/([^/]+)?',getMeanStd_telugu),
+    # ('/admin/get_qb',get_QB),
+    # ('/admin/getaudiolinks/([^/]+)?',getAudiolinks),
        ], debug=True)

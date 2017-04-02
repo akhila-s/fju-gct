@@ -64,22 +64,27 @@ table {
 }
   </style>
 </head>
-<body>
+<body onload="currentAdmintest({{currentAdminTests}})">
 	<h1 style="text-align:center"> Upload Students </h1>
 	<div class = "container-fluid">		
 		<a href="" class="btn btn-primary btn-md" style = "float:right" type="button"> Host Test </a>
 		<br>
 		<br>
 		<div class="col-md-12">
-			<h4>Exam ID: </h4><i>{{examid}}</i>
-			<h4>Question Paper: </h4><i>{{setname}}</i>
-			<h4>Date of Examination: </h4><i>{{datetime}}</i>
+			<h4>Exam ID: <select id="ExistingTests"></select> {{test[1]}}</h4>
+			<h4>Question Paper: {{test[2]}}</h4>
+			<h4>Date of Examination:{{test[0]}}</h4>
 			{% if hosted %}
 			<i>This exam is already hosted.</i>
 			{% else %}
 			<i>Not yet hosted.</i>
 			{% endif %}
 		</div>
+
+        <!-- {% for s in currentAdminTests %}
+				print {{s}}
+			{% endfor %} -->
+		
 		<div class="col-md-7">
 			<h3>Bulk Upload</h3>
 			<hr>
@@ -97,7 +102,7 @@ table {
 				<!-- </div> -->
 				<div class=" col-md-4 dropdown">
 				 <!--  <button class="dropbtn"> Choose Batch </button> -->
-				  <select class="selectpicker" data-live-search="true" data-style="btn-success">
+				  <select class="selectpicker" data-live-search="true" id = "button1" data-style="btn-success">
 				  	  <option>Choose Batch</option>
 					  <option> PUC 1 </option>
 					  <option> PUC 2 </option>
@@ -109,7 +114,7 @@ table {
 				</div>
 				<div class="col-md-4 dropdown">
 
-				  <select class="selectpicker" data-style="btn-success" data-live-search="true">
+				  <select class="selectpicker" data-style="btn-success" id = "button2" data-live-search="true">
 				  	  <option> Choose class </option>
 					  <option> kappa 1 </option>
 					  <option> kappa 2 </option>
@@ -166,7 +171,7 @@ table {
 			    <input type="file" id="studentscsv">
 			    <p class="help-block">(Please upload a students list in .csv format.)</p>
 			</div><hr>
-			<button class="btn btn-md btn-success">Submit</button>
+			<button class="btn btn-md btn-success" id = "button4">Add</button>
 		</div>
 		<div class="col-md-5">
 			<h3> Add Student </h3><hr>
@@ -196,13 +201,41 @@ table {
 			    <input id="Section" type="text" class="form-control" name="Section" placeholder="Student Section">
 			  </div>
 			  <hr>
-			  <button type="button" class="btn btn-success">Submit</button>
+			  <button type="button" id="button3" class="btn btn-success">Submit</button>
 			</form>
 		</div>
 	</div>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js">
+</script>
+<script>
+	function currentAdmintest(tests) {
+		var options = "";
+
+	for (var i = 0; i < tests.length; i++) {
+		
+		options += "<option>"+tests[i]+"</option>";
+	}
+	document.getElementById('ExistingTests').innerHTML = options;
+	
+	}
+	
+</script>
+<script>
+		function addStudent() {
+			var e = document.getElementById("ExistingTests");
+			var value = e.options[e.selectedIndex].value;
+			if(value==None) {
+				alert(value)
+				document.getElementById("button1").disabled = true;
+				document.getElementById("button2").disabled = true;
+				document.getElementById("button3").disabled = true;
+				document.getElementById("button4").disabled = true;
+
+			}
+		}
+
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
 </html>
