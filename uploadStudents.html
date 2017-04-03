@@ -71,7 +71,8 @@ table {
 		<br>
 		<br>
 		<div class="col-md-12">
-			<h4>Exam ID: <select id="ExistingTests"></select> {{test[1]}}</h4>
+			<h4>Exam ID: <select id="ExistingTests"></select> <span id = "id">{{test[1]}}</span></h4>
+			<!-- $.post( "/Student","examid": {{test[1]}}) -->
 			<h4>Question Paper: {{test[2]}}</h4>
 			<h4>Date of Examination:{{test[0]}}</h4>
 			{% if hosted %}
@@ -175,7 +176,7 @@ table {
 		</div>
 		<div class="col-md-5">
 			<h3> Add Student </h3><hr>
-			<form>
+			<form id="addStudent" action="/admin/addStudent" method="post">
 			  <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="stuname" type="text" class="form-control" name="name" placeholder="Student name">
@@ -190,7 +191,7 @@ table {
 			  </div>
 			  <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-			    <input id="mail" type="text" class="form-control" name="mail" placeholder="Student mail">
+			    <input id="mail" type="text" class="form-control" name="email" placeholder="Student mail">
 			  </div>
 			  <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
@@ -201,8 +202,9 @@ table {
 			    <input id="Section" type="text" class="form-control" name="Section" placeholder="Student Section">
 			  </div>
 			  <hr>
-			  <button type="button" id="button3" class="btn btn-success">Submit</button>
+			  <button type="submit" id="button3" class="btn btn-success">Submit</button>
 			</form>
+			<span style="color:green">{{status}}</span>
 		</div>
 	</div>
 </body>
@@ -213,7 +215,7 @@ table {
 	function currentAdmintest(tests) {
 		var options = "";
 
-	for (var i = 0; i < tests.length; i++) {
+	for (var i = 0; i <=tests.length; i++) {
 		
 		options += "<option>"+tests[i]+"</option>";
 	}
@@ -222,7 +224,41 @@ table {
 	}
 	
 </script>
+
 <script>
+		// document.getElementById("button3").onclick = function () {
+		// 	// var student = {}
+		// 	// student["studentname"]  = $("#stuname").val();
+		// 	// student["studentcampus"] = $("#campus").val();
+		// 	// student["studentrollnum"] = $("#rollnum").val();
+		// 	// student["studentmail"] = $("#mail").val();
+		// 	// student["studentyear"] = $("#year").val();
+		// 	// student["studentsection"] = $("#Section").val();
+		// 	// // alert(student);
+		// 	// console.log(student)
+		// 	// $.post("/admin/addStudent",student).done(function(data){
+		// 	// 	console.log(data)
+		// 	// })
+		// }
+		// var examid = $("#Section").val();
+
+		// if (studentname != "" & studentcampus != "" & studentrollnum !="" & studentmail != "" & studentyear != "" & studentsection !="") {
+		// 	$.post( "/admin/check", { "studentname": studentname, "studentcampus": studentcampus, "studentrollnum": studentrollnum, "studentmail": studentmail,"studentyear": studentyear,"studentsection": studentsection})
+		// 		.done(function( data ) {
+		// 		    console.log(data);
+		// 	 	});
+		// 		}
+		// 		else {
+		// 			alert("Please fill out all the fields.")
+		// 		}
+		// 	};
+</script>
+
+		
+
+
+
+<!-- <script>
 		function addStudent() {
 			var e = document.getElementById("ExistingTests");
 			var value = e.options[e.selectedIndex].value;
@@ -236,6 +272,15 @@ table {
 			}
 		}
 
+</script> -->
+<script type="text/javascript">
+	$("#button3").click(function(event){
+		console.log("btn clicked")
+		event.preventDefault()
+		$("#addStudent").submit();
+	});
 </script>
+
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
 </html>

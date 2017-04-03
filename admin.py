@@ -212,7 +212,7 @@ class AdminDetails(ndb.Model):
   emailid=ndb.StringProperty(indexed=True)
   setname=ndb.StringProperty(indexed=True)
   examid=ndb.StringProperty(indexed=True)
-  students=ndb.StringProperty()
+  students=ndb.StringProperty(repeated=True)
   datetime=ndb.DateTimeProperty(auto_now=False)
   hosted=ndb.BooleanProperty()
 
@@ -1000,15 +1000,18 @@ class CreateTest(webapp2.RequestHandler):
           qset = self.request.get("set")
           examid = self.request.get("examid")
           # examid = int(time.mktime(datetime_object.timetuple()))
-          AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False).put()
-         
-          test.append(date)
-          test.append(examid)
-          test.append(qset)
-          currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
-          currentAdminTests.append("ELT set2")
-          currentAdminTests.append("ELT set3")
-          self.response.write("/admin/uploadStudents")
+          vaild = AdminDetails.query(AdminDetails.examid==examid).get()
+          if not vaild:
+            AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False, students=[]).put()      
+            test.append(date)
+            test.append(examid)
+            test.append(qset)
+            # currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
+            # currentAdminTests.append("ELT set2")
+            # currentAdminTests.append("ELT set3")
+            self.response.write("/admin/uploadStudents")
+          else:
+            self.response.write("invalid")
         else:
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
@@ -1025,14 +1028,69 @@ class uploadStudents(webapp2.RequestHandler):
       else:
         if user.email() in ADMIN_USER_IDS:
           template = JINJA_ENVIRONMENT.get_template('uploadStudents.html')
-          template_values = {"sets":getsets(),"test": test , "currentAdminTests" :currentAdminTests }
+          status = self.request.get("status")
+          template_values = {"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests, "status":status}
           self.response.write(template.render(template_values))
         else:
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
+class Student(webapp2.RequestHandler):
+  def get(self):
+    template = JINJA_ENVIRONMENT.get_template('check.html')
+    self.response.write(template.render())
+    sp=AdminDetails.query(AdminDetails.examid()=="hima").get()
+   # self.response.out.write(sp)
+  # def post(self):
+  #   studentname = self.request.get("studentname")
+  #   studentcampus = self.request.get("studentcampus")
+  #   studentrollnum = self.request.get("studentrollnum")
+  #   studentmail = self.request.get("studentmail")
+  #   studentyear = self.request.get("studentyear")
+  #   studentsection = self.request.get("studentsection")
+  #   examid = self.request.get("examid")
+    
+  #   logging.info(studentname)
+  # def __init__ (self,input1,input2,input3,input4,input5,input6):
+  #   self.studentname = input1
+  #   self.studentcampus = input2
+  #   self.studentrollnum = input3
+  #   self.studentmail = input4
+  #   self.studentyear = input5
+  #   self.studentSection = input6
 
+  # def showdetails(self):
+  #   print self.studentname
+  # def main():
+  #   a= Student(studentname,studentcampus,studentrollnum,studentmail,studentyear,studentSection)
+  #   a.showdetails()
+  #   logging.info(a.showdetails())
+
+  # if __name__ == "__main__":
+  #   main()
+
+class addStudent(webapp2.RequestHandler):
+  # status = self.request.get("status")
+  def post(self):
+    status = ""
+    user = users.get_current_user()
+    if user is None:
+      login_url = users.create_login_url(self.request.path)
+      self.redirect(login_url)
+      return
+    else:      
+      if user.email() in ADMIN_USER_IDS:
+        student = self.request.get("email")
+        exam_row = AdminDetails.query(AdminDetails.examid==test[1]).fetch()[0]
+        exam_row.students.append(student)
+        exam_row.put()
+        status = str(student)+" is added to "+str(test[1])
+        self.redirect("/admin/uploadStudents?status="+status)
+      else:
+        users.create_logout_url('/')
+        login_url = users.create_login_url(self.request.path)
+        self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
 application = webapp2.WSGIApplication([
     ('/admin/?',Home),
@@ -1041,6 +1099,8 @@ application = webapp2.WSGIApplication([
     ('/admin/uploadStudents',uploadStudents),
     # ('admin/whattosend',Detailsget),
     ('/admin/createtest',CreateTest),
+    ('/admin/Student',Student),
+    ('/admin/addStudent',addStudent),
     # ('/admin/invite',Invite),
     # ('/admin/loadinvites',getInvites),
     # ('/admin/adminhome',AdminHome),

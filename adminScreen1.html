@@ -128,7 +128,10 @@ document.getElementById("Log").onclick = function () {
 				if (date != "" & set != "" & examid !="") {
 					$.post( "/admin/createtest", { "date": date, "set": set, "examid": examid })
 					  .done(function( data ) {
-					    location.href = data;
+					  	if(data!="invalid")
+						    location.href = data;
+						else
+							alert("That ID is already taken. Please choose a unique one.");
 					  });
 				}
 				else {
