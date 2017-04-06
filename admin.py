@@ -28,7 +28,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com']; 
+ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com','ananyaannu22@gmail.com','anjanikumar1802@gmail.com']; 
 a1_start=101;a1_end=301;a2_start=301;a2_end=401;a3_start=401;a3_end=601;a4_start=601;a4_end=701;
 a5_start=701;a5_end=801;e1_start=801;e1_end=1201;e2_start=1201;e2_end=1601;e3_start=1601;e3_end=1701;
 e4_start=1701;e4_end=1801;t1_start=1801;t1_end=2201;t2_start=2201;t2_end=2601;
@@ -1036,11 +1036,6 @@ class uploadStudents(webapp2.RequestHandler):
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
-class Student(webapp2.RequestHandler):
-  def get(self):
-    template = JINJA_ENVIRONMENT.get_template('check.html')
-    self.response.write(template.render())
-    sp=AdminDetails.query(AdminDetails.examid()=="hima").get()
    # self.response.out.write(sp)
   # def post(self):
   #   studentname = self.request.get("studentname")
@@ -1091,6 +1086,53 @@ class addStudent(webapp2.RequestHandler):
         users.create_logout_url('/')
         login_url = users.create_login_url(self.request.path)
         self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+class uploadBulk_csv(blobstore_handlers.BlobstoreUploadHandler):
+  def post(self):
+    data = self.request.get("csvfile")
+    user = users.get_current_user()
+    if user is None:
+      login_url = users.create_login_url(self.request.path)
+      self.redirect(login_url)
+      return
+    else:
+      if user.email() in ADMIN_USER_IDS:
+        template_values = {'home':True,'data':data}
+        # try :
+        upload = self.get_uploads()
+
+        ndb.delete_multi(
+          latestUploadExcelSheet.query().fetch(keys_only=True)
+        )
+  
+        latestUploadExcelSheet(key = "latestUpload", value = upload.key()).put()
+        template_values['SuccessMsg'] = "Successfully Uploaded "
+        template_values['urlDownload'] = str(upload.key())
+        testdatetime = datetime.datetime.now()
+        blob_reader = blobstore.BlobReader(upload.key())
+        reader = csv.reader(blob_reader, delimiter=',')
+        for rowIndex, row in enumerate(reader):
+          if(rowIndex == 0):
+            columnHeaders = row
+          else:
+            logging.info(row)
+            rollnumber, studentName, section,studentEmail, campus, batch= row
+            det = AdminDetails.query(AdminDetails.examid==test[1]).fetch()[0]
+            # if not len(det):
+            #   entry = AdminDetails(email = studentEmail)
+            #   entry.put() 
+            # else:
+              # student = AdminDetails.query(AdminDetails.email == studentEmail).fetch()
+              # if not student:
+            AdminDetails(email = studentEmail).put()
+            
+        self.redirect("/admin/?upload=true")
+        # template= JINJA_ENVIRONMENT.get_template('admin.html')
+        # self.response.write(template.render(template_values))
+      else:
+        users.create_logout_url('/')
+        login_url = users.create_login_url(self.request.path)
+        #self.redirect(login_url)
+        self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
 application = webapp2.WSGIApplication([
     ('/admin/?',Home),
@@ -1099,8 +1141,9 @@ application = webapp2.WSGIApplication([
     ('/admin/uploadStudents',uploadStudents),
     # ('admin/whattosend',Detailsget),
     ('/admin/createtest',CreateTest),
-    ('/admin/Student',Student),
+    # ('/admin/Student',Student),
     ('/admin/addStudent',addStudent),
+    ('/admin/uploadBulk_csv',uploadBulk_csv),
     # ('/admin/invite',Invite),
     # ('/admin/loadinvites',getInvites),
     # ('/admin/adminhome',AdminHome),

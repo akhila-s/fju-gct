@@ -16,46 +16,79 @@
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-		<link rel="stylesheet" type="text/css" href="/stylesheets/admin.css"/>
+		<!-- <link rel="stylesheet" type="text/css" href="/stylesheets/admin.css"/> -->
+		<style>
+			h1,h3 {
+				text-align: center;
+			}
+			.main {
+				padding: 10px;
+				padding-bottom: 40px;
+				border: 1px solid silver;
+				margin: 20px;
+			}
+			.blocks{
+				display: flex;
+				text-align: center;
+			}
+			.left-block,.right-block {
+				padding: 10px;
+				border: 1px solid black;
+				width: 50%;
+				margin: 20px;
+				margin-top: 0px;
+				height: 150px;
+			}
+			.date,.exam-id,.next-btn {
+				width: 50%;
+				margin: auto;
+				padding: 10px;
+			}
+			.next-btn {
+				width: 25%;
+			}
+			.full-name {
+				font-size: 16px;
+			}
+			
+		</style>
 	</head>
 	
 	<body>
-		<header>
-		   <h1>CREATE EXAM</h1>
-		</header>
+		<div class = "main">
+	    <h1>CREATE EXAM</h1>
 		<h3> SELECT TEST </h3>
-
-<div class = "main">
-		<div class ="left-block">
-			<h5 style = "text-align:center">English Language Test (ELT)</h5>
-			{% for set in sets %}
-				{% if set %}
-					<input type="radio" id = "setsselector" name="qset" value="{{set.name}}"> {{set.fullName}}<br>
-				{% endif %}
-			{% endfor %}
-		</div>
-		<!-- <div class ="right-block">
-			<h5 style = "text-align:center">Quantitative Aptitude Test (QAT)</h5>  
-			<input type="radio" name="qset" value="QAT1"> QAT1<br>
-			<input type="radio" name="qset" value="QAT2"> QAT2<br>
-			<input type="radio" name="qset" value="QAT3"> QAT3
-		</div> -->
-	</div>
-		<div class="form-group">
+			<div class = "blocks">
+				<div class ="left-block">
+					<h4 style = "text-align:center">English Language Test (ELT)</h4>
+					{% for set in sets %}
+						{% if set %}
+							<input type="radio" id = "setsselector" name="qset" value="{{set.name}}"> <span class = "full-name">
+						{{set.fullName}}</span><br>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class ="right-block">
+					<h4 style = "text-align:center">Quantitative Aptitude Test (QAT)</h4>  
+					<input type="radio" name="qset" value="QAT1"><span class = "full-name"> QAT1 </span><br>
+					<input type="radio" name="qset" value="QAT2"><span class = "full-name"> QAT2 </span><br>
+					<input type="radio" name="qset" value="QAT3"><span class = "full-name"> QAT3 </span><br>
+				</div>
+			</div>
+		<div class="form-group date">
 		  <label for="datetimepicker">Select Date</label>
-		    <input type="text" class="form-control" id="datetimepicker" placeholder="Click to select a date">
+		  <input type="text" class="form-control" id="datetimepicker" placeholder="Click to select a date">
 		</div>
-		<div>
+
+		<div class = "form-group exam-id">
 		    <label for="examid">Enter Examid</label>
-		    <input type="text" id="examidpicker" placeholder="Click to eneter examid">
+		    <input type="text" class = "form-control" id="examidpicker" placeholder="Click to enter examid">
 		</div>
 
-		<div> 
-			<p align="right">
-				<button id="Log" class="btn btn-primary">Next</button>
-			</p>
+		<div class =  "form-group next-btn"> 
+			<button id = "Log" class="btn btn-primary btn-md form-control">Next</button>
 		</div>
-
+	</div>
 	<!-- <form name = "admincreatetest" method = "post" action = "/whattosend" accept-charset="utf-8">
 
 		<div>

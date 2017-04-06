@@ -71,7 +71,7 @@ table {
 		<br>
 		<br>
 		<div class="col-md-12">
-			<h4>Exam ID: <select id="ExistingTests"></select> <span id = "id">{{test[1]}}</span></h4>
+			<h4>Exam ID: <select id="ExistingTests"></select>{{test[1]}}</h4>
 			<!-- $.post( "/Student","examid": {{test[1]}}) -->
 			<h4>Question Paper: {{test[2]}}</h4>
 			<h4>Date of Examination:{{test[0]}}</h4>
@@ -169,11 +169,23 @@ table {
 			<h4 class="text-center"><b>(OR)</b></h4>
 			<br>
 			<div class="form-group">
-			    <input type="file" id="studentscsv">
-			    <p class="help-block">(Please upload a students list in .csv format.)</p>
+				<form method = "POST" name = "excel-form" action = "{{url}}" enctype="multipart/form-data">
+				    <input type="file" id="studentscsv" name="csvfile">
+				    <p class="help-block">(Please upload a students list in .csv format.)</p>
+				</form>
 			</div><hr>
-			<button class="btn btn-md btn-success" id = "button4">Add</button>
+			<button type = "submit" class="btn btn-md btn-success" id = "add_student">Add</button>
+			
+			<h3><FONT color = "green" > {{SuccessMsg}} </FONT></h3>
 		</div>
+		<div class="text-right" style="padding:2%; height: 300px; background-color: #fff; z-index: 999; display:none; position:absolute; bottom:0; left:0; right:0" id="passwordsNoMatchRegister">
+						<div class="col-md-12">
+							<h4 class="col-md-6 text-left">Validation Report</h4>
+				  			<a class="col-md-6" href="#" id="dismiss">Dismiss</a>
+						</div>
+						<hr class="col-md-11" style="border-top:1px solid black; margin:0px">
+				  		<p class="col-md-12 text-left" id="message"></p>
+				  	</div>
 		<div class="col-md-5">
 			<h3> Add Student </h3><hr>
 			<form id="addStudent" action="/admin/addStudent" method="post">
@@ -280,6 +292,25 @@ table {
 		$("#addStudent").submit();
 	});
 </script>
+
+
+<script type="text/javascript">
+		$("#add_student").click(function(){
+			test = {}
+			test["examid"] = $("#examid").val();
+			test["date"] = $("#datetimepicker").val();
+			test["questionset"] = $("#questionset").val();
+			// var fd = new FormData($('#studentcsv').get(0));
+			// console.log(fd);
+			test["csv"] = $("#studentscsv")[0].files[0].name;
+			test = JSON.stringify(test);
+			$("#message").text(test+"");
+			$('#passwordsNoMatchRegister').slideDown();
+		});
+		$("#dismiss").click(function(){
+			$('#passwordsNoMatchRegister').hide();
+		})
+	</script>
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
