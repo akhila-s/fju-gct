@@ -985,6 +985,26 @@ class AdminScreen1(webapp2.RequestHandler):
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 #declearing noof tests 
 
+class getExamDetails(webapp2.RequestHandler):
+  def get(self):
+    user = users.get_current_user()
+    if user is None:
+      login_url = users.create_login_url(self.request.path)
+      self.redirect(login_url)
+      return
+    else:
+      if user.email() in ADMIN_USER_IDS:
+        examid = self.request.get("examid")
+        qry = AdminDetails.query(AdminDetails.examid==examid).get()
+        res = []
+        res.append(qry.setname)
+        res.append(str(qry.datetime))
+        self.response.out.write(json.dumps(res))
+      else:
+        users.create_logout_url('/')
+        login_url = users.create_login_url(self.request.path)
+        self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
 class CreateTest(webapp2.RequestHandler):
     def post(self):
       global test,currentAdminTests
@@ -1017,6 +1037,48 @@ class CreateTest(webapp2.RequestHandler):
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
+# class getUserList(webapp2.RequestHandler):
+#   def get(self):
+#       user = users.get_current_user()
+#       if user is None:
+#         login_url = users.create_login_url(self.request.path)
+#         self.redirect(login_url)
+#         return
+#       else:
+#         if user.email() in ADMIN_USER_IDS:
+
+#         else:
+#           users.create_logout_url('/')
+#           login_url = users.create_login_url(self.request.path)
+#           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);  
+
+class getStudents(webapp2.RequestHandler):
+  def get(self):
+      user = users.get_current_user()
+      if user is None:
+        login_url = users.create_login_url(self.request.path)
+        self.redirect(login_url)
+        return
+      else:
+        if user.email() in ADMIN_USER_IDS:
+          qry = userDetails.query().fetch()
+
+          res = {'draw':1,'recordsTotal':0,'recordsFiltered':0,'data':[]}
+          
+          for row in qry:
+            res["recordsTotal"] = res["recordsTotal"]+1
+            temp = {}
+            temp["rollno"] = row.rollno
+            temp["name"] = row.name
+            temp["email"] = row.email
+            temp["learningcenter"] = row.learningcenter
+            res["data"].append(temp)
+          self.response.write(json.dumps(res))
+        else:
+          users.create_logout_url('/')
+          login_url = users.create_login_url(self.request.path)
+          self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
 class uploadStudents(webapp2.RequestHandler):
     """  handles rendering of create test page """
     def get(self):
@@ -1029,6 +1091,12 @@ class uploadStudents(webapp2.RequestHandler):
         if user.email() in ADMIN_USER_IDS:
           template = JINJA_ENVIRONMENT.get_template('uploadStudents.html')
           status = self.request.get("status")
+          qry = AdminDetails.query(AdminDetails.emailid==user.email()).fetch()
+          currentAdminTests = []
+          for entry in qry:
+            currentAdminTests.append(entry.examid)
+          currentAdminTests = json.dumps(currentAdminTests)
+
           template_values = {"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests, "status":status}
           self.response.write(template.render(template_values))
         else:
@@ -1077,15 +1145,25 @@ class addStudent(webapp2.RequestHandler):
     else:      
       if user.email() in ADMIN_USER_IDS:
         student = self.request.get("email")
-        exam_row = AdminDetails.query(AdminDetails.examid==test[1]).fetch()[0]
-        exam_row.students.append(student)
-        exam_row.put()
-        status = str(student)+" is added to "+str(test[1])
+        examid = self.request.get("examid")
+        validStudent = userDetails.query(userDetails.email==student).get()
+        if validStudent:
+          exam_row = AdminDetails.query(AdminDetails.examid==examid).fetch()[0]
+          if student not in exam_row.students:
+            exam_row.students.append(student)
+            exam_row.put()
+            status = str(student)+" is added to the exam "+str(examid)
+          else:
+            status = str(student)+" is already added to the exam "+str(examid)
+        else:
+          status = str(student)+" is not registered with RGUKT."
+
         self.redirect("/admin/uploadStudents?status="+status)
       else:
         users.create_logout_url('/')
         login_url = users.create_login_url(self.request.path)
         self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
 class uploadBulk_csv(blobstore_handlers.BlobstoreUploadHandler):
   def post(self):
     data = self.request.get("csvfile")
@@ -1139,11 +1217,13 @@ application = webapp2.WSGIApplication([
     # ('/admin/([^/]+)?',downloadExcelSheet),
     ('/admin/adminScreen1',AdminScreen1),
     ('/admin/uploadStudents',uploadStudents),
+    ('/admin/getstudents',getStudents),
     # ('admin/whattosend',Detailsget),
     ('/admin/createtest',CreateTest),
     # ('/admin/Student',Student),
     ('/admin/addStudent',addStudent),
     ('/admin/uploadBulk_csv',uploadBulk_csv),
+    ('/admin/getexamdetails',getExamDetails),
     # ('/admin/invite',Invite),
     # ('/admin/loadinvites',getInvites),
     # ('/admin/adminhome',AdminHome),
