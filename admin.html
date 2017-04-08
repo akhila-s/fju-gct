@@ -159,10 +159,10 @@
 		<center>
 		
 		{% if home%}
-			<br>  
+			<!-- <br>  
 		    <div class="row" style="padding: 2%">
 			    <div style="padding:0px" class="col-md-6">
-			    	<h3>Active Tests</h3>< hr>
+			    	<h3>Active Tests</h3><hr> -->
 
 			    	<!-- <h3>Invite Students</h3><hr>
 			    	<form style="display: flex;">
@@ -191,7 +191,7 @@
 						</table>
 						<span id="loading" class="glyphicon glyphicon-refresh spinning" style="margin-top:-10px"></span>
 					</div> -->
-		        </div>
+		        <!-- </div>
 		        <div  class="col-md-6" style="border:1px solid black; background-color: #fff; padding:2%">
 		        	<div class="row">
 		        		<h3 style="margin: 0px" class="col-md-10 text-left">Create Test</h3>
@@ -237,18 +237,18 @@
 				  		<p class="col-md-12 text-left" id="message"></p>
 				  	</div>
 		        </div>
-			</div><br>
+			</div><br> -->
 
-			<div class = "excel-upload">
-				<form method = "POST" name = "excel-form" action = "{{templateUrl}}" enctype="multipart/form-data">
+			<div class = "row excel-upload text-left">
+				<h2>Students List</h2>
+				<form method = "POST" name = "excel-form" action="{{templateUrl}}" enctype="multipart/form-data">
 					<input type = "file" name = "excel-sheet">
-					<button type = "submit" class = "btn btn-primary "> Upload </button>
-					<a href = "/admin/{{urlDownload}}" class = "btn btn-primary "> Download </a>
+					<button type = "submit" class = "btn btn-primary"> Upload </button>
+					<a href = "/admin/{{urlDownload}}" class = "btn btn-primary"> Download </a>
 				</form>
 				<h3><FONT color = "green" > {{SuccessMsg}} </FONT></h3>
 			</div>
-
-
+			<a href="/admin/adminScreen1" class="btn btn-primary" >Create test</a>
 			<form method="GET" name="f1">
 				<div class="row"><br></div>
 				<div class="row">
@@ -455,24 +455,5 @@
 			$('#passwordsNoMatchRegister').hide();
 		})
 	</script>
-
-	<p align="centre">
-			<button id="Log1" class="btn btn-primary" >Create test</button></p>
-			<script type="text/javascript">
-	document.getElementById("Log1").onclick = function () {
-			location.href = "/admin/adminScreen1";
-	};
-   
-</script> 
 	</body>
 </html>
-
-
-
-
-
-
-
-	
-
- 
