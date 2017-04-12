@@ -187,12 +187,17 @@ table {
 				<form method = "POST" name = "excel-form" action = "{{url}}" enctype="multipart/form-data">
 				    <input type="file" id="studentscsv" name="csvfile">
 				    <p class="help-block">(Please upload a students list in .csv format.)</p>
+				    <button type = "submit" class="btn btn-md btn-success" id = "add_student">Add</button>
 				</form>
 			</div><hr>
-
-			<button type = "submit" class="btn btn-md btn-success" id = "add_student">Add</button>
-			
-			<h3><FONT color = "green" > {{SuccessMsg}} </FONT></h3>
+			<h3><FONT color = "green" > {{msg}} </FONT></h3>
+			{%if conflictList %}
+				<script>window.history.pushState("","","/admin/uploadStudents")</script>
+				<h3> CONFLICTED LIST OF STUDENTS </h3>
+				{%for student in conflictList%}
+					<p>{{student}}</p>
+				{%endfor%}
+			{%endif%}	
 		</div>
 	</div>
 </body>

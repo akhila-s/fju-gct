@@ -440,6 +440,7 @@ class AdminHome(webapp2.RequestHandler):
         login_url = users.create_login_url(self.request.path)
         #self.redirect(login_url)
         self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
 class QuizDetails(webapp2.RequestHandler):
   def  get(self,lcenter):
     userslist=[];
@@ -1079,7 +1080,7 @@ class getStudents(webapp2.RequestHandler):
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
-class uploadStudents(webapp2.RequestHandler):
+class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
     """  handles rendering of create test page """
     def get(self):
       user = users.get_current_user()
@@ -1091,18 +1092,77 @@ class uploadStudents(webapp2.RequestHandler):
         if user.email() in ADMIN_USER_IDS:
           template = JINJA_ENVIRONMENT.get_template('uploadStudents.html')
           status = self.request.get("status")
+          upload = self.request.get("upload")
+          msg = ""
+          if upload:
+            msg = "Successfully Uploaded"
           qry = AdminDetails.query(AdminDetails.emailid==user.email()).fetch()
           currentAdminTests = []
           for entry in qry:
             currentAdminTests.append(entry.examid)
           currentAdminTests = json.dumps(currentAdminTests)
-
-          template_values = {"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests, "status":status}
+          upload_url = blobstore.create_upload_url("/admin/uploadStudents")
+          template_values = {"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests, "status":status, "url": upload_url, "msg":msg}
           self.response.write(template.render(template_values))
         else:
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
+    def post(self):
+      user = users.get_current_user()
+      if user is None:
+        login_url = users.create_login_url(self.request.path)
+        self.redirect(login_url)
+        return
+      else:
+        if user.email() in ADMIN_USER_IDS:
+          conflictList = []
+          template_values = {}
+          upload = self.get_uploads()[0]
+          blob_reader = blobstore.BlobReader(upload.key())
+          reader = csv.reader(blob_reader, delimiter=',')
+          for rowIndex, row in enumerate(reader):
+            if(rowIndex == 0):
+              columnHeaders = row
+            else:
+              logging.info(row)
+              print "//////////////////////////////////////"
+              print row        
+              res =  checkValidStudent(row[0])
+              if not res:
+                conflictList.append(row[0])
+                print  "............................................."
+                print conflictList
+
+
+          qry = AdminDetails.query(AdminDetails.emailid==user.email()).fetch()
+          currentAdminTests = []
+          for entry in qry:
+            currentAdminTests.append(entry.examid)
+          currentAdminTests = json.dumps(currentAdminTests)
+          template_values = {"conflictList" : conflictList,"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests}
+
+          # self.redirect("/admin/uploadStudents?upload=true?")
+          template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
+          self.response.write(template.render(template_values))
+        else:
+          users.create_logout_url('/')
+          login_url = users.create_login_url(self.request.path)
+          #self.redirect(login_url)
+          self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
+
+def checkValidStudent(student):
+  status = False
+  validStudent = userDetails.query(userDetails.email==student).get()
+  if validStudent:
+    # exam_row = AdminDetails.query(AdminDetails.examid==examid).fetch()[0]
+    status = True
+  return status  
+
+
+
 
    # self.response.out.write(sp)
   # def post(self):
@@ -1163,6 +1223,8 @@ class addStudent(webapp2.RequestHandler):
         users.create_logout_url('/')
         login_url = users.create_login_url(self.request.path)
         self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
+
+
 
 class uploadBulk_csv(blobstore_handlers.BlobstoreUploadHandler):
   def post(self):
