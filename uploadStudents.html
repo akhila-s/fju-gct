@@ -3,8 +3,10 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
+
   
 
   <script>$('.dropdown-toggle').dropdown();
@@ -53,6 +55,9 @@ table {
     padding: 12px 16px;
     text-decoration: none;
     display: block;
+}
+.filter-option {
+	color: black;
 }
 
 .dropdown-content a:hover {background-color: #f1f1f1}
@@ -143,39 +148,42 @@ table {
 				<!-- </div> -->
 				<div class=" col-md-4 dropdown">
 				 <!--  <button class="dropbtn"> Choose Batch </button> -->
-				  <select class="selectpicker" data-live-search="true" id = "button1" data-style="btn-success">
-				  	  <option>Choose Batch</option>
-					  <option> PUC 1 </option>
-					  <option> PUC 2 </option>
-					  <option> ENGG 1 </option>
-					  <option> ENGG 2 </option>
-					  <option> ENGG 3 </option>
-					  <option> ENGG 4 </option>
+				  <select class="selectpicker show-menu-arrow" multiple data-live-search="true" id = "batch-select" title = "Choose Batch" style = "color:black">
+					  <option>PUC 1</option>
+					  <option>PUC 2</option>
+					  <option>ENGG 1</option>
+					  <option>ENGG 2</option>
+					  <option>ENGG 3</option>
+					  <option>ENGG 4</option>
 				   </select>
 				</div>
+
 				<div class="col-md-4 dropdown">
-
-				  <select class="selectpicker" data-style="btn-success" id = "button2" data-live-search="true">
-				  	  <option> Choose Section </option>
-					  <option> kappa 1 </option>
-					  <option> kappa 2 </option>
-					  <option> kappa 3 </option>
-					  <option> kappa 4 </option>
-					  <option> kappa 5 </option>
-					  <option> kappa 6 </option>
+				  <select class="selectpicker show-menu-arrow" id = "section-select" multiple data-live-search="true" title = "Choose Section" style = "color:black">
+						  <option>KAPPA 1</option>
+						  <option>KAPPA 2</option>
+						  <option>KAPPA 3</option>
+						  <option>KAPPA 4</option>
+						  <option>KAPPA 5</option>
+						  <option>KAPPA 6</option>
 				   </select>
-
+				</div>
+				<div>
+					<button class = "btn btn-primary btn-md" id = "filter-btn">FILTER</button>
 				</div>
 			</div>
 			<br>
 			<div style="padding: 2%" class="row">
-				<table id="usertable" class="col-md-12 display">
+				<table id="usertable" class="col-md-12 display text-center" >
 					  <thead>
 					  	<tr>
 					    	<th>Roll No.</th>
 					    	<th>Name</th>
 					    	<th>Email</th>
 					    	<th>Learning Center</th>
+					    	<th>Batch</th>
+					    	<th>Section</th>
+					    	<th>Select</th>
 					  	</tr>
 					  </thead>
 				</table>
@@ -197,6 +205,9 @@ table {
 				{%for student in conflictList%}
 					<p>{{student}}</p>
 				{%endfor%}
+				{%elif empty%}
+				  <script>window.history.pushState("","","/admin/uploadStudents")</script>
+				  <p class = "text-success"> No Conflicted List Of Students </p>
 			{%endif%}	
 		</div>
 	</div>
@@ -205,6 +216,7 @@ table {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js">
 </script>
 <script>
+
 	
 	function getData(examid){
 		$.get( "/admin/getexamdetails?examid="+examid, function( data ) {
@@ -217,7 +229,15 @@ table {
 	var options = "";
 
 	for (var i = 0; i < currentTests.length; i++) {	
-	 	options += "<option>"+currentTests[i]+"</option>";
+		// console.log({{examid}})
+		// if(currentTests[i] == {{examid}}) {
+		// 	console.log(currentTests[i])
+		// 	options += "<option selected>"+currentTests[i]+"</option>";
+		// }
+		// else {
+			// console.log("??????????")
+	 		options += "<option>"+currentTests[i]+"</option>";
+		// }
 	}
 	$("#ExistingTests").append(options);
 	
@@ -230,10 +250,66 @@ table {
 		getData(this.value);
 	});
 
+	function filterStudents() {
+		$.fn.dataTable.ext.search.push(
+		function( settings, data, dataIndex ) {
+			var batchSelect = $("#batch-select").val();
+			var sectionSelect = $("#section-select").val();
+			var batchs,sections
+			var p,q
+			if (batchSelect) {
+				batchs = batchSelect.toString().split(",");
+				// for (var i = 0; i < batchs.length; i ++) {
+				// 	batchs[i] = batchs[i].trim("")
+				// }
+			};
+			if (sectionSelect) {
+				sections = sectionSelect.toString().split(",");
+				// for (var i = 0; i < sections.length; i ++) {
+				// 	sections[i] = sections[i].trim("")
+				// }
+			};
+					console.log(batchs)
+					console.log("<<<<<<<<<<<<<<<<<")
+					console.log(sections)
+
+			if(batchs && sections) {
+				if (batchs.indexOf(data[4].trim()) >= 0 && sections.indexOf(data[5].trim()) >= 0) {
+					return true;
+				}
+				return false;
+			}		
+
+			else if (batchs) {
+				if (batchs.indexOf(data[4].trim()) >= 0) {
+					return true;
+				}
+				return false;
+			}
+			else if (sections) {
+				if (sections.indexOf(data[5].trim()) >= 0) {
+					return true;
+				}
+				return false;
+			}
+			else {
+				return true;
+			}
+
+			
+		});
+	}
+
+	function clearStudents() {
+		$.fn.dataTable.ext.search.pop();
+		table.draw();
+	}
+
+
 	$(document).ready(function() {
-	    $('#usertable').DataTable( {
+	    table = $('#usertable').DataTable( {
 	        "processing": true,
-	        "serverSide": true,
+	        // "serverSide": true,
 	        "ajax": {
 	            "url": "/admin/getstudents",
 	            "type": "GET"
@@ -242,10 +318,44 @@ table {
 	            { "data": "rollno" },
 	            { "data": "name" },
 	            { "data": "email" },
-	            { "data": "learningcenter" }
-	        ]
+	            { "data": "learningcenter" },
+	            { "data": "batch"},
+	            { "data": "section"},
+	            	{"data":   "active",
+	                render: function ( data, type, row ) {
+	                    return '<input type="checkbox" style = "width : 25px;height : 25px" class="editor-active">';
+	                }
+            	}
+	        ],
+	         "columnDefs": [
+	            {
+	                "targets": [ 4 ],
+	                "visible": false
+	            },
+	            {
+	                "targets": [ 5 ],
+	                "visible": false
+	            }
+        	]
+
+
 	    });
+	    $("#batch-select,#section-select").change(function() {
+	    	clearStudents();
+	    	filterStudents();
+	    	table.draw();
+		});
+	    
 	});
+	// $("#batch-select,#section-select").change(function() {
+	// 		batchSelect = $("#batch-select").val();
+	// 		sectionSelect = $("#section-select").val();
+	// 		console.log(batchSelect+"    " + sectionSelect)
+	// 		console.log("//////////////////////////////////////")
+			
+	        	
+	// 	});
+
 </script>
 
 <script>
@@ -306,22 +416,22 @@ table {
 
 
 <script type="text/javascript">
-		$("#add_student").click(function(){
-			test = {}
-			test["examid"] = $("#examid").val();
-			test["date"] = $("#datetimepicker").val();
-			test["questionset"] = $("#questionset").val();
-			// var fd = new FormData($('#studentcsv').get(0));
-			// console.log(fd);
-			test["csv"] = $("#studentscsv")[0].files[0].name;
-			test = JSON.stringify(test);
-			$("#message").text(test+"");
-			$('#passwordsNoMatchRegister').slideDown();
-		});
-		$("#dismiss").click(function(){
-			$('#passwordsNoMatchRegister').hide();
-		})
-	</script>
+	$("#add_student").click(function(){
+		test = {}
+		test["examid"] = $("#examid").val();
+		test["date"] = $("#datetimepicker").val();
+		test["questionset"] = $("#questionset").val();
+		// var fd = new FormData($('#studentcsv').get(0));
+		// console.log(fd);
+		test["csv"] = $("#studentscsv")[0].files[0].name;
+		test = JSON.stringify(test);
+		$("#message").text(test+"");
+		$('#passwordsNoMatchRegister').slideDown();
+	});
+	$("#dismiss").click(function(){
+		$('#passwordsNoMatchRegister').hide();
+	})
+</script>
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">

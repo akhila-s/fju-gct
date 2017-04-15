@@ -81,7 +81,7 @@
 		</div>
 
 		<div class = "form-group exam-id">
-		    <label for="examid">Enter Examid</label>
+		    <label for="examidpicker">Enter Examid</label>
 		    <input type="text" class = "form-control" id="examidpicker" placeholder="Click to enter examid">
 		</div>
 
@@ -151,13 +151,15 @@ document.getElementById("Log").onclick = function () {
 					startDate: new Date(),
 					dayOfWeekStart : 1,
 					lang:'en',
+					minDate:0,
+					minDateTime: new Date()
 				});
 			});
 			document.getElementById("Log").onclick = function () {
 				var date = $("#datetimepicker").val();
 				var set = $('input:radio[name=qset]:checked').val();
 				var examid = $("#examidpicker").val();
-				alert(date+set+examid)
+				// alert(date+set+examid)
 				if (date != "" & set != "" & examid !="") {
 					$.post( "/admin/createtest", { "date": date, "set": set, "examid": examid })
 					  .done(function( data ) {

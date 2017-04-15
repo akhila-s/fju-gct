@@ -363,15 +363,15 @@ class Home(blobstore_handlers.BlobstoreUploadHandler):
 
           else:
             logging.info(row)
-            rollnumber, studentName, studentEmail, campus = row
+            rollnumber, studentName, studentEmail, campus, batch, section = row
             det = userDetails.query().fetch()
             if not len(det):
-              entry = userDetails(rollno  = rollnumber, name = studentName, email = studentEmail, learningcenter = campus, testctime = testdatetime)
+              entry = userDetails(rollno  = rollnumber, name = studentName, email = studentEmail, learningcenter = campus, testctime = testdatetime,batch =batch, section = section)
               entry.put() 
             else:
               student = userDetails.query(userDetails.email == studentEmail).fetch()
               if not student:
-                userDetails(rollno  = rollnumber, name = studentName, email = studentEmail, learningcenter = campus, testctime = testdatetime).put()
+                userDetails(rollno  = rollnumber, name = studentName, email = studentEmail, learningcenter = campus, testctime = testdatetime,batch =batch, section = section).put()
                 
             
         self.redirect("/admin/?upload=true")
@@ -1030,7 +1030,7 @@ class CreateTest(webapp2.RequestHandler):
             # currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
             # currentAdminTests.append("ELT set2")
             # currentAdminTests.append("ELT set3")
-            self.response.write("/admin/uploadStudents")
+            self.response.write("/admin/uploadStudents?examid="+examid)
           else:
             self.response.write("invalid")
         else:
@@ -1073,6 +1073,8 @@ class getStudents(webapp2.RequestHandler):
             temp["name"] = row.name
             temp["email"] = row.email
             temp["learningcenter"] = row.learningcenter
+            temp["batch"] = row.batch
+            temp["section"] = row.section
             res["data"].append(temp)
           self.response.write(json.dumps(res))
         else:
@@ -1142,6 +1144,8 @@ class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
             currentAdminTests.append(entry.examid)
           currentAdminTests = json.dumps(currentAdminTests)
           template_values = {"conflictList" : conflictList,"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests}
+          if len(conflictList)== 0:
+            template_values["empty"]=  True
 
           # self.redirect("/admin/uploadStudents?upload=true?")
           template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
@@ -1274,6 +1278,28 @@ class uploadBulk_csv(blobstore_handlers.BlobstoreUploadHandler):
         #self.redirect(login_url)
         self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
+
+class FilterStudents(webapp2.RequestHandler):
+  def post(self):
+    batch = self.request.get("batch")
+    section = self.request.get("section")
+    batchs = batch.split(",")
+    sections = section.split(",")
+    finalList = []
+    # finalList.append(sections)
+    for i in batchs:
+      for j in sections:
+        det = userDetails.query(userDetails.batch == str(i).strip(),userDetails.section == str(j).strip()).fetch()
+        if det:
+          sublist = []
+          sublist.append(det[0].rollno)
+          sublist.append(det[0].name)
+          sublist.append(det[0].email)
+          sublist.append(det[0].learningcenter)
+          finalList.append(sublist)
+    self.response.write(finalList)
+
+        
 application = webapp2.WSGIApplication([
     ('/admin/?',Home),
     # ('/admin/([^/]+)?',downloadExcelSheet),
@@ -1285,6 +1311,7 @@ application = webapp2.WSGIApplication([
     # ('/admin/Student',Student),
     ('/admin/addStudent',addStudent),
     ('/admin/uploadBulk_csv',uploadBulk_csv),
+    ('/admin/filterStudents',FilterStudents),
     ('/admin/getexamdetails',getExamDetails),
     # ('/admin/invite',Invite),
     # ('/admin/loadinvites',getInvites),

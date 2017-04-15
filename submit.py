@@ -387,6 +387,8 @@ class userDetails(ndb.Model):
     # phno = ndb.StringProperty(indexed=True)    
     testctime = ndb.DateTimeProperty(auto_now=True)
     learningcenter =  ndb.StringProperty(indexed = True)
+    batch = ndb.StringProperty(indexed=True)
+    section = ndb.StringProperty(indexed =True)
     # street = ndb.StringProperty(indexed=True)
     # city = ndb.StringProperty(indexed=True)
     # state = ndb.StringProperty(indexed=True)
@@ -844,7 +846,7 @@ class registrationdataHandler(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         if user:
-            userDetails(name=self.request.get('name'),email=user.email(),rollno=self.request.get('rollno'),learningcenter=self.request.get('learningcenter')).put()
+            userDetails(name=self.request.get('name'),email=user.email(),rollno=self.request.get('rollno'),learningcenter=self.request.get('learningcenter'),batch = self.request.get('batch'),section = self.request.get('section')).put()
             self.redirect("/dashboard")
         else:
             login_url = users.create_login_url(self.request.path)
