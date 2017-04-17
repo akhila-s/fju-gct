@@ -168,9 +168,6 @@ table {
 						  <option>KAPPA 6</option>
 				   </select>
 				</div>
-				<div>
-					<button class = "btn btn-primary btn-md" id = "filter-btn">FILTER</button>
-				</div>
 			</div>
 			<br>
 			<div style="padding: 2%" class="row">
@@ -269,9 +266,9 @@ table {
 				// 	sections[i] = sections[i].trim("")
 				// }
 			};
-					console.log(batchs)
-					console.log("<<<<<<<<<<<<<<<<<")
-					console.log(sections)
+					// console.log(batchs)
+					// console.log("<<<<<<<<<<<<<<<<<")
+					// console.log(sections)
 
 			if(batchs && sections) {
 				if (batchs.indexOf(data[4].trim()) >= 0 && sections.indexOf(data[5].trim()) >= 0) {
@@ -330,11 +327,11 @@ table {
 	         "columnDefs": [
 	            {
 	                "targets": [ 4 ],
-	                "visible": false
+	                "visible": false,
 	            },
 	            {
 	                "targets": [ 5 ],
-	                "visible": false
+	                "visible": false,
 	            }
         	]
 
