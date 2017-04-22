@@ -1063,13 +1063,14 @@ class getStudents(webapp2.RequestHandler):
       else:
         if user.email() in ADMIN_USER_IDS:
           qry = userDetails.query().fetch()
-
+          examid = self.request.get("examid")
+          host_time = AdminDetails.query(AdminDetails.examid == examid).fetch()[0].datetime
           res = {'draw':1,'recordsTotal':0,'recordsFiltered':0,'data':[]}
-          
           for row in qry:
             res["recordsTotal"] = res["recordsTotal"]+1
             temp = {}
             temp["rollno"] = row.rollno
+            temp["valid"] = checkValidStudent(row.email,host_time)
             temp["name"] = row.name
             temp["email"] = row.email
             temp["learningcenter"] = row.learningcenter
@@ -1098,13 +1099,14 @@ class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
           msg = ""
           if upload:
             msg = "Successfully Uploaded"
+          examId = self.request.get("examid")  
           qry = AdminDetails.query(AdminDetails.emailid==user.email()).fetch()
           currentAdminTests = []
           for entry in qry:
             currentAdminTests.append(entry.examid)
           currentAdminTests = json.dumps(currentAdminTests)
           upload_url = blobstore.create_upload_url("/admin/uploadStudents")
-          template_values = {"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests, "status":status, "url": upload_url, "msg":msg}
+          template_values = {"sets":getsets(), "test": test , "examid" : examId, "currentAdminTests" :currentAdminTests, "status":status, "url": upload_url, "msg":msg}
           self.response.write(template.render(template_values))
         else:
           users.create_logout_url('/')
@@ -1119,9 +1121,12 @@ class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
         return
       else:
         if user.email() in ADMIN_USER_IDS:
-          conflictList = []
+          examid = self.request.get("examid")
+          host_time = AdminDetails.query(AdminDetails.examid == examid).fetch()[0].datetime
+          conflictList,validStudentList = [],[]
           template_values = {}
           upload = self.get_uploads()[0]
+
           blob_reader = blobstore.BlobReader(upload.key())
           reader = csv.reader(blob_reader, delimiter=',')
           for rowIndex, row in enumerate(reader):
@@ -1131,22 +1136,23 @@ class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
               logging.info(row)
               print "//////////////////////////////////////"
               print row        
-              res =  checkValidStudent(row[0])
+              res =  checkValidStudent(row[0],host_time)
               if not res:
                 conflictList.append(row[0])
                 print  "............................................."
                 print conflictList
-
+              else:
+                validStudentList.append(row[0])
 
           qry = AdminDetails.query(AdminDetails.emailid==user.email()).fetch()
           currentAdminTests = []
           for entry in qry:
             currentAdminTests.append(entry.examid)
           currentAdminTests = json.dumps(currentAdminTests)
-          template_values = {"conflictList" : conflictList,"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests}
+          template_values = {"conflictList" : conflictList, "examid" : examid,"sets":getsets(), "test": test , "currentAdminTests" :currentAdminTests}
           if len(conflictList)== 0:
             template_values["empty"]=  True
-
+            template_values["validStudentList"] = validStudentList
           # self.redirect("/admin/uploadStudents?upload=true?")
           template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
           self.response.write(template.render(template_values))
@@ -1157,12 +1163,20 @@ class uploadStudents(blobstore_handlers.BlobstoreUploadHandler):
           self.response.write("<center><h3><font color='red'>Invalid Admin Credentials</font></h3><h3>Please <a href='%s'>Login</a> Again</h3></center>"% login_url);
 
 
-def checkValidStudent(student):
+def checkValidStudent(student,host_stime):
   status = False
   validStudent = userDetails.query(userDetails.email==student).get()
   if validStudent:
-    # exam_row = AdminDetails.query(AdminDetails.examid==examid).fetch()[0]
-    status = True
+    studentrow = TestDetails.query(TestDetails.email==student).fetch()
+    if len(studentrow)==0:
+      status = True
+    else:  
+      for row in studentrow:
+        start_time = row.teststime
+        end_time = start_time + datetime.timedelta(hours = 1)
+        host_endtime = host_stime + datetime.timedelta(hours = 1)
+        if((host_endtime <= start_time - datetime.timedelta(minutes = 5)) or (host_stime >= end_time + datetime.timedelta(minutes = 5))):
+          status = True
   return status  
 
 
@@ -1299,6 +1313,73 @@ class FilterStudents(webapp2.RequestHandler):
           finalList.append(sublist)
     self.response.write(finalList)
 
+class DeleteTest(webapp2.RequestHandler):
+  def get(self):
+    examid =  self.request.get("examid")
+    row = AdminDetails.query(AdminDetails.examid == examid).fetch()
+    # userdetails table lo kuda search cheyali and delete cheyali
+    for i in row:
+      i.key.delete()    # AdminDetails.query(AdminDetails.examid == examid).delete()
+    self.redirect("/admin/")
+
+ # emailid=ndb.StringProperty(indexed=True)
+ #  setname=ndb.StringProperty(indexed=True)
+ #  examid=ndb.StringProperty(indexed=True)
+ #  students=ndb.StringProperty(repeated=True)
+ #  datetime=ndb.DateTimeProperty(auto_now=False)
+ #  hosted=ndb.BooleanProperty()
+
+
+ #  class TestDetails(ndb.Model):
+ #    email=ndb.StringProperty(indexed=True) --
+ #    test= ndb.BooleanProperty(default=False)
+ #    teststime=ndb.DateTimeProperty(auto_now_add=True) --
+ #    delays=ndb.FloatProperty(indexed=True)
+ #    testend= ndb.BooleanProperty(default=False)
+ #    lastPing = ndb.DateTimeProperty(auto_now_add=True)
+ #    score = ndb.IntegerProperty(indexed = True)
+ #    learningcenter = ndb.StringProperty(indexed=True) --
+ #    testId = ndb.BlobProperty(indexed=True) --
+ #    admin = ndb.StringProperty(indexed=True)--
+
+class HostTest(webapp2.RequestHandler):
+  def post(self):
+    print ":::::::::"
+    print self.request
+    json_request= json.loads(self.request.body)
+    host_student_list = json_request[u'hostStudentList']
+    examid = str(json_request[u'examid'])
+
+    print "HOST_STU"
+    print host_student_list
+    print "examid : "
+    print examid
+    # examid = self.request.get("examid");
+    details = AdminDetails.query(AdminDetails.examid == examid).fetch()
+    admin_email = details[0].emailid
+    print "ADMIN: "
+    print admin_email
+    host_time = details[0].datetime
+    print "host_TIME: "
+    print host_time
+    hosted = False
+    for student in  host_student_list:
+      row = userDetails.query(userDetails.email == str(student)).fetch()
+      lc = row[0].learningcenter
+      print "lc: "
+      print lc
+      print "row"
+      print row
+      TestDetails(email = str(student), teststime= host_time,learningcenter = lc, testId =examid, admin = admin_email).put()
+      hosted = True
+    template_values = {}
+    template_values['hosted'] = hosted
+    template_values['examid'] = examid
+    # self.redirect("/admin/uploadStudents?examid=" +examid+ "&hosted="+str(hosted))
+    template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
+    self.response.write(template.render(template_values))
+
+
         
 application = webapp2.WSGIApplication([
     ('/admin/?',Home),
@@ -1313,6 +1394,8 @@ application = webapp2.WSGIApplication([
     ('/admin/uploadBulk_csv',uploadBulk_csv),
     ('/admin/filterStudents',FilterStudents),
     ('/admin/getexamdetails',getExamDetails),
+    ('/admin/deleteTest',DeleteTest),
+    ('/admin/hostTest',HostTest)
     # ('/admin/invite',Invite),
     # ('/admin/loadinvites',getInvites),
     # ('/admin/adminhome',AdminHome),

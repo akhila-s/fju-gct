@@ -72,8 +72,23 @@ table {
   </style>
 </head>
 <body>
+	{%if empty%}
+		<script>
+			var validStudents = {}
+		</script>
+
+		{%for i in validStudentList%}
+		  <script>validStudents["{{i}}"] = true</script>
+	  	{%endfor%}
+	  <script>
+	 console.log(validStudents);
+	</script>
+	{% endif%}
+
+
 	<div class = "container-fluid">		
 		<div class="col-md-12">
+			<h1> {{examid}} </h1>
 			<h2>Exam Details</h2>
 			<table id="examDetails" class="table-bordered">
 				<tr>
@@ -87,9 +102,11 @@ table {
 				<tr>
 					<td>Date of Examination:</td>
 					<td id="doe"></td>
+
 				</tr>
 			</table><br>
-			<a href="" class="btn btn-primary btn-md" style = "float:left" type="button"> Host Test </a>
+			<button class="btn btn-primary btn-md" style = "float:left" id="host-test" disabled> Host Test </button>
+			<a href= "/admin/deleteTest?examid={{examid}}" id = "delete-btn" class="btn btn-primary btn-md"type="button">Delete Test</a>
 		</div>
 		<div class="col-md-12">
 			<br><h2> Upload Students </h2>		
@@ -168,6 +185,7 @@ table {
 						  <option>KAPPA 6</option>
 				   </select>
 				</div>
+
 			</div>
 			<br>
 			<div style="padding: 2%" class="row">
@@ -180,7 +198,7 @@ table {
 					    	<th>Learning Center</th>
 					    	<th>Batch</th>
 					    	<th>Section</th>
-					    	<th>Select</th>
+					    	<th>Select All <input type = "checkbox" id = "select-all"></th>
 					  	</tr>
 					  </thead>
 				</table>
@@ -190,20 +208,21 @@ table {
 			<br>
 			<div class="form-group">
 				<form method = "POST" name = "excel-form" action = "{{url}}" enctype="multipart/form-data">
-				    <input type="file" id="studentscsv" name="csvfile">
+				    <input type="file" id="studentscsv" name="csvfile" >
 				    <p class="help-block">(Please upload a students list in .csv format.)</p>
+				    <input type = "hidden" name = "examid" value = "{{examid}}">
 				    <button type = "submit" class="btn btn-md btn-success" id = "add_student">Add</button>
 				</form>
 			</div><hr>
 			<h3><FONT color = "green" > {{msg}} </FONT></h3>
 			{%if conflictList %}
-				<script>window.history.pushState("","","/admin/uploadStudents")</script>
+				<script>window.history.pushState("","","/admin/uploadStudents?examid={{examid}}")</script>
 				<h3> CONFLICTED LIST OF STUDENTS </h3>
 				{%for student in conflictList%}
 					<p>{{student}}</p>
 				{%endfor%}
 				{%elif empty%}
-				  <script>window.history.pushState("","","/admin/uploadStudents")</script>
+				  <script>window.history.pushState("","","/admin/uploadStudents?examid={{examid}}")</script>
 				  <p class = "text-success"> No Conflicted List Of Students </p>
 			{%endif%}	
 		</div>
@@ -212,9 +231,29 @@ table {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js">
 </script>
+<!-- {%if hosted%}
 <script>
-
 	
+</script>
+{%endif%} -->
+<script>
+	$("#host-test").click(function() {
+		console.log("**********8888888888888888888888888888888888888888888")
+		console.log(validStudents)
+		$.ajax({
+			type : 'POST',
+            contentType: 'application/json',
+            url: '/admin/hostTest',
+            data: JSON.stringify( {"hostStudentList":validStudents,"examid":'{{examid}}'})
+        }).done(function () {
+        	alert("{{examid}} is hosted");
+        });
+
+		
+		// $.post('/admin/hostTest',{"hostStudentList":validStudents,"examid" : '{{examid}}'},function(data){
+		// 	alert("{{examid}} is hosted");
+		// });
+	});
 	function getData(examid){
 		$.get( "/admin/getexamdetails?examid="+examid, function( data ) {
 		  data = JSON.parse(data);
@@ -224,17 +263,13 @@ table {
 	}
 	var currentTests = {{ currentAdminTests|safe }}
 	var options = "";
-
 	for (var i = 0; i < currentTests.length; i++) {	
-		// console.log({{examid}})
-		// if(currentTests[i] == {{examid}}) {
-		// 	console.log(currentTests[i])
-		// 	options += "<option selected>"+currentTests[i]+"</option>";
-		// }
-		// else {
-			// console.log("??????????")
-	 		options += "<option>"+currentTests[i]+"</option>";
-		// }
+		if(currentTests[i] == "{{examid}}") {
+			options += "<option selected>"+currentTests[i]+"</option>";
+		}
+		else {
+			options += "<option>"+currentTests[i]+"</option>";
+		}
 	}
 	$("#ExistingTests").append(options);
 	
@@ -246,6 +281,30 @@ table {
 		$("#doe").html("");
 		getData(this.value);
 	});
+
+	$("#select-all").click(function() {
+		if($(".editor-active").prop('checked')) {
+			$(".editor-active").prop('checked',false);
+		}
+		else{
+			$(".editor-active").prop('checked',true);
+		}
+	});
+
+	$(".editor-active").click(function() {
+		console.log(":::::::::::::::::::::::::::::::::::::")
+		if($(".editor-active").prop('checked')) {
+			console.log($(this));
+		}
+	});	
+			// console.log("{{empty}}")
+	
+	if ("{{empty}}"){
+		$("#host-test").attr("disabled",false);
+	}
+	
+	
+	
 
 	function filterStudents() {
 		$.fn.dataTable.ext.search.push(
@@ -292,8 +351,6 @@ table {
 			else {
 				return true;
 			}
-
-			
 		});
 	}
 
@@ -308,7 +365,7 @@ table {
 	        "processing": true,
 	        // "serverSide": true,
 	        "ajax": {
-	            "url": "/admin/getstudents",
+	            "url": "/admin/getstudents?examid={{examid}}",
 	            "type": "GET"
 	        },
 	        "columns": [
@@ -318,11 +375,16 @@ table {
 	            { "data": "learningcenter" },
 	            { "data": "batch"},
 	            { "data": "section"},
-	            	{"data":   "active",
+            	{"data":   "active",
 	                render: function ( data, type, row ) {
-	                    return '<input type="checkbox" style = "width : 25px;height : 25px" class="editor-active">';
+	                	if (row.valid) {
+	                		return '<input type="checkbox" id="one" style = "width : 25px;height : 25px" class="editor-active">';
+	                	}
+	                	else {
+	                		return '<input type="checkbox" id = "two" style = "width : 25px;height : 25px" class="editor-inactive" disabled >';
+	                	}
 	                }
-            	}
+        		}
 	        ],
 	         "columnDefs": [
 	            {
@@ -334,15 +396,14 @@ table {
 	                "visible": false,
 	            }
         	]
-
-
 	    });
 	    $("#batch-select,#section-select").change(function() {
 	    	clearStudents();
 	    	filterStudents();
 	    	table.draw();
 		});
-	    
+
+
 	});
 	// $("#batch-select,#section-select").change(function() {
 	// 		batchSelect = $("#batch-select").val();
@@ -383,11 +444,6 @@ table {
 		// 		}
 		// 	};
 </script>
-
-		
-
-
-
 <!-- <script>
 		function addStudent() {
 			var e = document.getElementById("ExistingTests");

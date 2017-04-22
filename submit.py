@@ -405,6 +405,7 @@ class TestDetails(ndb.Model):
     score = ndb.IntegerProperty(indexed = True)
     learningcenter = ndb.StringProperty(indexed=True)
     testId = ndb.BlobProperty(indexed=True)
+    admin = ndb.StringProperty(indexed=True)
     #useraudiolink =ndb.StringProperty(indexed=True)
 
 class Response(ndb.Model):
