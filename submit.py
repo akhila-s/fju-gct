@@ -396,15 +396,15 @@ class userDetails(ndb.Model):
     
 
 class TestDetails(ndb.Model):
-    email=ndb.StringProperty(indexed=True)
+    email=ndb.StringProperty(indexed=True) 
     test= ndb.BooleanProperty(default=False)
-    teststime=ndb.DateTimeProperty(auto_now_add=True)
+    teststime=ndb.DateTimeProperty(auto_now_add=True) 
     delays=ndb.FloatProperty(indexed=True)
     testend= ndb.BooleanProperty(default=False)
     lastPing = ndb.DateTimeProperty(auto_now_add=True)
     score = ndb.IntegerProperty(indexed = True)
-    learningcenter = ndb.StringProperty(indexed=True)
-    testId = ndb.BlobProperty(indexed=True)
+    learningcenter = ndb.StringProperty(indexed=True) 
+    testId = ndb.BlobProperty(indexed=True) 
     admin = ndb.StringProperty(indexed=True)
     #useraudiolink =ndb.StringProperty(indexed=True)
 
@@ -497,52 +497,96 @@ class Dashboard(webapp2.RequestHandler):
             self.redirect(login_url)
             return
         else:
-            sp=userDetails.query(userDetails.email==user.email()).get()
+            userrow=userDetails.query(userDetails.email==user.email()).get()
             template=None
-            if sp is not None:
-                userrow = userDetails.query(userDetails.email == user.email()).get()
-                eMailId = TestDetails.query(TestDetails.email == user.email()).get()             
+            if userrow is not None:
+                rows = TestDetails.query(TestDetails.email == user.email()).fetch()
+                elt_list,qat_list = {},{}
+                for row in rows:
+                    examid = row.testId
+                    details = AdminDetails.query(AdminDetails.examid == examid).fetch()
+                    setname = details[0].setname
+                    testTime =  row.teststime
+                    currentTime = datetime.datetime.now()
+                    
+                    if ((testTime -  currentTime >= 0) and (testTime - currentTime <= datetime.timedelta(minutes = 5))):
+                        link,ids = getsetlink(examid)
+                    if "ELT" in setname:
+                        if len(ELTsets) != 0:
+                            for i in range(len(ELTsets)):
+                                if setname == ELTsets[i]["name"]:
+                                    ELTsets[i]["examid"] = examid
+                                    ELTsets[i]["toolTipDate"] = testTime.date().strftime("%A %d. %B %Y")
+                                    ELTsets[i]["link"] = link
+                                    # if row.testend:
+                                    #     ELTsets[i]["score"] = row.score
+                                    #     ELTsets[i]["status"] = "End"
 
-                currentDate =  userrow.testctime
-                logging.info(currentDate)
-                tempDate = currentDate
-                
-                for i in range(len(ELTsets)) :
-                    ELTsets[i] ["date"] = tempDate
-                    ELTsets[i] ["toolTipDate"] = tempDate.date().strftime("%A %d. %B %Y")
-                    tempDate +=  datetime.timedelta(days = 1)
+                                    # else:
+                                    #     currTime = datetime.datetime.now()
+                                    #     deltaTime = (currTime - row.lastPing).total_seconds()
+                                    #     if(deltaTime > 65.0):
+                                    #         row.delays = row.delays + deltaTime - 60.0
+                                    #         timeSpent = (currTime - row.teststime).total_seconds() - row.delays
+                                    #         if timeSpent < 0:
+                                    #             ELTsets[i]["status"] = "Start"
+                                    #         else:
+                                    #             ELTsets[i]["status"] = "In Progress"
+                                    #             ELTsets[i]["timeleft"] = round((60*60-timeSpent)/60);
+                                    elt_list[examid] = ELTsets[i]           
+        
 
-                if len(ELTsets) != 0:
-                    for i in range(len(ELTsets)):
-                        if ELTsets[i]["date"].date() - datetime.datetime.now().date() == datetime.timedelta(days = 0) :
-                            link,examid = getsetlink(ELTsets[i]["name"])
-                            memcache.add(key="examid", value=examid, time=360000)
-                            query = TestDetails.query(TestDetails.email==user.email()).get()
-                            if query is not None:
-                                query.testId = memcache.get(key="examid")
-                                query.put()
-                            ELTsets[i]["link"] = link
 
-                        row = TestDetails.query(TestDetails.email == user.email()).get()
-                        if row and row.testend:
-                            ELTsets[i]["score"] = row.score
-                            ELTsets[i]["status"] = "End"
-                        elif row is not None:
-                            currTime = datetime.datetime.now()
-                            deltaTime = (currTime - row.lastPing).total_seconds()
-                            if(deltaTime > 65.0):
-                                row.delays = row.delays + deltaTime - 60.0
-                            timeSpent = (currTime - row.teststime).total_seconds() - row.delays
-                            if timeSpent < 0:
-                                ELTsets[i]["status"] = "Start"
-                            else:
-                                ELTsets[i]["status"] = "In Progress"
-                                ELTsets[i]["timeleft"] = round((60*60-timeSpent)/60);
 
-                if len(QATsets) != 0:
-                    QATsets[0]["link"] = "/startquiz"
 
-                template_values = {"ELTsets":ELTsets,"QATsets":QATsets}
+                   
+                    
+
+                    # logging.info(currentDate)
+                     # eMailId = TestDetails.query(TestDetails.email == user.email()).get()      
+                    # tempDate = currentDate
+                    # for i in range(len(ELTsets)) :
+                    # ELTsets[i] ["date"] = tempDate
+                    # ELTsets[i] ["toolTipDate"] = tempDate.date().strftime("%A %d. %B %Y")
+                    # tempDate +=  datetime.timedelta(days = 1)
+
+
+                # if len(ELTsets) != 0:
+                #     for i in range(len(ELTsets)):
+                #         if ELTsets[i]["date"].date() - datetime.datetime.now().date() == datetime.timedelta(days = 0) :
+                #             link,examid = getsetlink(ELTsets[i]["name"])
+                #             memcache.add(key="examid", value=examid, time=360000)
+                #             query = TestDetails.query(TestDetails.email==user.email()).get()
+                #             if query is not None:
+                #                 query.testId = memcache.get(key="examid")
+                #                 query.put()
+                #             ELTsets[i]["link"] = link
+
+                #         row = TestDetails.query(TestDetails.email == user.email()).get()
+                #         if row and row.testend:
+                #             ELTsets[i]["score"] = row.score
+                #             ELTsets[i]["status"] = "End"
+                #         elif row is not None:
+                #             currTime = datetime.datetime.now()
+                #             deltaTime = (currTime - row.lastPing).total_seconds()
+                #             if(deltaTime > 65.0):
+                #                 row.delays = row.delays + deltaTime - 60.0
+                #             timeSpent = (currTime - row.teststime).total_seconds() - row.delays
+                #             if timeSpent < 0:
+                #                 ELTsets[i]["status"] = "Start"
+                #             else:
+                #                 ELTsets[i]["status"] = "In Progress"
+                #                 ELTsets[i]["timeleft"] = round((60*60-timeSpent)/60);
+
+
+
+                # if len(QATsets) != 0:
+                #     QATsets[0]["link"] = "/startquiz"
+
+
+
+
+                template_values = {"ELTsets":elt_list,"QATsets":qat_list}
                 template= JINJA_ENVIRONMENT.get_template('dashboard.html')
                 self.response.write(template.render(template_values))
             else:

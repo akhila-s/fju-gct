@@ -60,13 +60,17 @@
 	</div>
 	
 	<div class = "container">
-		
-		<div class = "left-section">
+		{%for key in ELTsets%}
+			{{key}}
+		{%endfor%}
+
+
+		<!-- <div class = "left-section">
 			<h2> English Literacy Test (ELT)</h2><br>
 
-			<div id="elt" class="list-group">
-				{% for set in ELTsets %}
-					{% if set.link == "" %}
+			<div id="elt" class="list-group"> -->
+				<!-- {% for set in ELTsets %}
+					{% if ELTsets[set].link == "" %}
 						<a href="#" class="list-group-item disabled" data-toggle = "tooltip" title = " Test will be available on  {{set.toolTipDate}}">  {{set.fullName}} <span class="glyphicon glyphicon-lock"></span>
 					{% else %}
 						{% if set.status == "End" %}
@@ -126,9 +130,9 @@
 					<p class="text-center"><em>No Test Found.</em></p>
 				{% endfor %}
 			</div>
-		</div>
+		</div> -->
 	</div>
-	<script type="text/javascript" src="javascripts/app.js"></script>
-	<script type="text/javascript" src="javascripts/quiz.js"></script>
+	 <script type="text/javascript" src="javascripts/app.js"></script>
+	 <script type="text/javascript" src="javascripts/quiz.js"></script>
 </body>
 </html>
