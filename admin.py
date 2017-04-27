@@ -28,7 +28,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com','ananyaannu22@gmail.com','anjanikumar1802@gmail.com']; 
+ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com','swathivemuri4@gmail.com','ananyaannu22@gmail.com','anjanikumar1802@gmail.com']; 
 a1_start=101;a1_end=301;a2_start=301;a2_end=401;a3_start=401;a3_end=601;a4_start=601;a4_end=701;
 a5_start=701;a5_end=801;e1_start=801;e1_end=1201;e2_start=1201;e2_end=1601;e3_start=1601;e3_end=1701;
 e4_start=1701;e4_end=1801;t1_start=1801;t1_end=2201;t2_start=2201;t2_end=2601;
@@ -973,7 +973,7 @@ class AdminScreen1(webapp2.RequestHandler):
       gin_url = users.create_login_url(self.request.path)
       user = users.get_current_user()
       if user is None:
-        lof.redirect(login_url)
+        self.redirect(login_url)
         return
       else:
         if user.email() in ADMIN_USER_IDS:
@@ -997,9 +997,15 @@ class getExamDetails(webapp2.RequestHandler):
       if user.email() in ADMIN_USER_IDS:
         examid = self.request.get("examid")
         qry = AdminDetails.query(AdminDetails.examid==examid).get()
+        test_details =  TestDetails.query(TestDetails.testId == str(examid)).fetch()
+        students = []
+        for i in test_details:
+          row = userDetails.query(userDetails.email == i.email).get()
+          students.append(row.rollno)
         res = []
         res.append(qry.setname)
         res.append(str(qry.datetime))
+        res.append(students)
         self.response.out.write(json.dumps(res))
       else:
         users.create_logout_url('/')
@@ -1226,6 +1232,7 @@ class addStudent(webapp2.RequestHandler):
         examid = self.request.get("examid")
         validStudent = userDetails.query(userDetails.email==student).get()
         if validStudent:
+          # / TO DO : Check in Test Details Table if email and examid exists, send to checkValidStudent method
           exam_row = AdminDetails.query(AdminDetails.examid==examid).fetch()[0]
           if student not in exam_row.students:
             exam_row.students.append(student)
@@ -1317,7 +1324,7 @@ class DeleteTest(webapp2.RequestHandler):
   def get(self):
     examid =  self.request.get("examid")
     row = AdminDetails.query(AdminDetails.examid == examid).fetch()
-    # userdetails table lo kuda search cheyali and delete cheyali
+    # TO DO : userdetails table lo kuda search cheyali and delete cheyali
     for i in row:
       i.key.delete()    # AdminDetails.query(AdminDetails.examid == examid).delete()
     self.redirect("/admin/")

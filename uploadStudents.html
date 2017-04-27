@@ -72,11 +72,10 @@ table {
   </style>
 </head>
 <body>
+	<script>
+		var validStudents = {}
+	</script>
 	{%if empty%}
-		<script>
-			var validStudents = {}
-		</script>
-
 		{%for i in validStudentList%}
 		  <script>validStudents["{{i}}"] = true</script>
 	  	{%endfor%}
@@ -259,6 +258,10 @@ table {
 		  data = JSON.parse(data);
 		  $("#qpaper").html(data[0]);
 		  $("#doe").html(data[1]);
+		  console.log(data[2]);
+		  for (var i = 0; i <= data[2].length; i ++) {
+		  	$("#" + data[2][i]).prop('checked',true);
+		  }
 		});
 	}
 	var currentTests = {{ currentAdminTests|safe }}
@@ -282,25 +285,45 @@ table {
 		getData(this.value);
 	});
 
-	$("#select-all").click(function() {
-		if($(".editor-active").prop('checked')) {
-			$(".editor-active").prop('checked',false);
-		}
-		else{
-			$(".editor-active").prop('checked',true);
-		}
-	});
+	// $("#select-all").click(function() {
+	// 	$(".editor-active").prop('checked',$(this).prop('checked'));
+	// 	if($(this).prop('checked')) {
+	// 		console.log($(this).siblings());
+	// 	}
+	// });
 
-	$(".editor-active").click(function() {
-		console.log(":::::::::::::::::::::::::::::::::::::")
-		if($(".editor-active").prop('checked')) {
-			console.log($(this));
-		}
-	});	
+
+	
+
+	// var flag = false;
+	var checkb = function(rollnumber,id) {
+		$("#"+rollnumber).click(function() {
+			console.log(":::::::::::::::::::::::::::::::::::::")
+			if($(this).prop('checked')) {
+				// console.log($(this));
+				validStudents[id] = true;
+				// console.log(validStudents);
+				// flag = true;
+			}
+			else {
+				delete validStudents[id];
+				// console.log(validStudents);
+			}
+			enableHostTestBtn();
+		});	
+		
+	} 
 			// console.log("{{empty}}")
 	
-	if ("{{empty}}"){
-		$("#host-test").attr("disabled",false);
+	var enableHostTestBtn = function() {
+		if (Object.keys(validStudents).length > 0){
+			// console.log("enable");
+			$("#host-test").attr("disabled",false);
+		}
+		else {
+			console.log("disabled");
+			$("#host-test").attr("disabled",true);
+		}
 	}
 	
 	
@@ -361,6 +384,7 @@ table {
 
 
 	$(document).ready(function() {
+		all_students_list = [];
 	    table = $('#usertable').DataTable( {
 	        "processing": true,
 	        // "serverSide": true,
@@ -378,15 +402,23 @@ table {
             	{"data":   "active",
 	                render: function ( data, type, row ) {
 	                	if (row.valid) {
-	                		return '<input type="checkbox" id="one" style = "width : 25px;height : 25px" class="editor-active">';
+	                		// if(!flag) {
+                			if (all_students_list.indexOf(row.email) < 0) {
+                				all_students_list.push(row.email);
+                				// console.log(">>>>"+all_students_list);
+                			}
+                				checkb(row.rollno,row.email);
+	                		// }
+	                		// console.log(row.email);
+	                		return '<input type="checkbox" id = "'+row.rollno+'" style = "width : 25px;height : 25px" class="editor-active">';
 	                	}
 	                	else {
-	                		return '<input type="checkbox" id = "two" style = "width : 25px;height : 25px" class="editor-inactive" disabled >';
+	                		return '<input type="checkbox" style = "width : 25px;height : 25px" class="editor-inactive" disabled >';
 	                	}
 	                }
         		}
 	        ],
-	         "columnDefs": [
+	        "columnDefs": [
 	            {
 	                "targets": [ 4 ],
 	                "visible": false,
@@ -402,6 +434,38 @@ table {
 	    	filterStudents();
 	    	table.draw();
 		});
+
+		    $("#select-all").click(function() {
+			var temp_list = {};
+			if ($("#select-all").prop('checked')) {
+				for (var j = 0; j <= validStudents.length; j ++) {
+					temp_list[validStudents[j]] = true;
+				}
+				$(".editor-active").prop('checked',true);
+				for (var i = 0; i <= all_students_list.length; i ++){
+					if(all_students_list[i]) {
+						validStudents[all_students_list[i]] = true;
+					}
+				}
+				// $("#host-test").attr("disabled",false);
+			}
+			else {
+				$(".editor-active").prop('checked',false);
+				validStudents = {};
+				for (var k = 0; k <= temp_list.length; k ++) {
+					validStudents[temp_list[k]] = true;
+				}
+			}
+			enableHostTestBtn();
+			// console.log(validStudents);
+			table.draw();
+		});
+
+
+
+
+
+
 
 
 	});
