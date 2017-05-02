@@ -1028,17 +1028,20 @@ class CreateTest(webapp2.RequestHandler):
           examid = self.request.get("examid")
           # examid = int(time.mktime(datetime_object.timetuple()))
           vaild = AdminDetails.query(AdminDetails.examid==examid).get()
-          if not vaild:
-            AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False, students=[]).put()      
-            test.append(date)
-            test.append(examid)
-            test.append(qset)
-            # currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
-            # currentAdminTests.append("ELT set2")
-            # currentAdminTests.append("ELT set3")
-            self.response.write("/admin/uploadStudents?examid="+examid)
+          if datetime_object > datetime.datetime.now():
+            if not vaild:
+              AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False, students=[]).put()      
+              test.append(date)
+              test.append(examid)
+              test.append(qset)
+              # currentAdminTests.append("None")    #after completion i need to get admin tests from database and apped them to this and send them
+              # currentAdminTests.append("ELT set2")
+              # currentAdminTests.append("ELT set3")
+              self.response.write("/admin/uploadStudents?examid="+examid)
+            else:
+              self.response.write("invalid")
           else:
-            self.response.write("invalid")
+            self.response.write("invalidDate")    
         else:
           users.create_logout_url('/')
           login_url = users.create_login_url(self.request.path)
@@ -1326,7 +1329,13 @@ class DeleteTest(webapp2.RequestHandler):
     row = AdminDetails.query(AdminDetails.examid == examid).fetch()
     # TO DO : userdetails table lo kuda search cheyali and delete cheyali
     for i in row:
-      i.key.delete()    # AdminDetails.query(AdminDetails.examid == examid).delete()
+      i.key.delete()
+    
+    delete_in_testdetails = TestDetails.query(TestDetails.testId == str(examid)).fetch()
+    if row:
+      for i in delete_in_testdetails:
+        i.key.delete()
+
     self.redirect("/admin/")
 
  # emailid=ndb.StringProperty(indexed=True)

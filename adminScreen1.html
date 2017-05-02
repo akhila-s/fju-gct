@@ -163,10 +163,14 @@ document.getElementById("Log").onclick = function () {
 				if (date != "" & set != "" & examid !="") {
 					$.post( "/admin/createtest", { "date": date, "set": set, "examid": examid })
 					  .done(function( data ) {
-					  	if(data!="invalid")
+					  	if(data =="invalid")
+					  		alert("That ID is already taken. Please choose a unique one.");
+						else if (data == "invalidDate") {
+							alert("Enter ValidDate.");
+						}
+						else {
 						    location.href = data;
-						else
-							alert("That ID is already taken. Please choose a unique one.");
+						};
 					  });
 				}
 				else {

@@ -108,16 +108,16 @@ table {
 			<a href= "/admin/deleteTest?examid={{examid}}" id = "delete-btn" class="btn btn-primary btn-md"type="button">Delete Test</a>
 		</div>
 		<div class="col-md-12">
-			<br><h2> Upload Students </h2>		
+			<br><h2> Add Students </h2>		
 		</div>
 
         <!-- {% for s in currentAdminTests %}
 				print {{s}}
 			{% endfor %} -->
-		<div class="col-md-5">
+		<!-- <div class="col-md-5">
 			<h3> Add One Student </h3><hr>
 			<form id="addStudent" action="/admin/addStudent" method="post">
-			  <input id="dupexamid" type="hidden" name="examid">
+			  <input id="dupexamid" type="hidden" name="examid">-->
 			  <!-- <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="rollnum" type="text" class="form-control" name="rollnum" placeholder="Roll. No.">
@@ -126,10 +126,10 @@ table {
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="stuname" type="text" class="form-control" name="name" placeholder="Name">
 			  </div> -->
-			  <div class="input-group">
+			  <!-- <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="email" type="text" class="form-control" name="email" placeholder="Email">
-			  </div>
+			  </div> -->
 			  <!-- <div class="input-group">
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="campus" type="text" class="form-control" name="learningcenter" placeholder="Learning Center">
@@ -142,15 +142,14 @@ table {
 			    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 			    <input id="Section" type="text" class="form-control" name="Section" placeholder="Student Section">
 			  </div> -->
-			  <hr>
+			 <!--  <hr>
 			  <button type="submit" id="button3" class="btn btn-success">Submit</button>
 			</form>
-			<span style="color:green">{{status}}</span>
-		</div>
-		<div class="col-md-7">
-			<h3>Add Multiple Students</h3>
+			<span style="color:green">{{status}}</span> -->
+		<!-- </div> -->
+		<div class="col-md-12">
 			<hr>
-			<div class="row search">
+			<div style = "padding-left: 5%; padding-right: 5%" class="row search">
 				<!-- <h3> Search Students By </h3> -->
 
 			   <!--  <select class="col-md-4 selectpicker" data-style="btn-success">
@@ -162,6 +161,9 @@ table {
 					
 				  <!-- </div> -->
 				<!-- </div> -->
+				<div>
+					<label> SELECT STUDENTS FROM THE TABLE TO HOST THE TEST</label><br>
+				</div>
 				<div class=" col-md-4 dropdown">
 				 <!--  <button class="dropbtn"> Choose Batch </button> -->
 				  <select class="selectpicker show-menu-arrow" multiple data-live-search="true" id = "batch-select" title = "Choose Batch" style = "color:black">
@@ -187,8 +189,8 @@ table {
 
 			</div>
 			<br>
-			<div style="padding: 2%" class="row">
-				<table id="usertable" class="col-md-12 display text-center" >
+			<div style="padding-left: 5% ; padding-right: 5%" class="row">
+				<table id="usertable" class="display text-center" >
 					  <thead>
 					  	<tr>
 					    	<th>Roll No.</th>
@@ -202,13 +204,16 @@ table {
 					  </thead>
 				</table>
 			</div>
+			<form>
+				<button type = "submit" class="btn btn-md btn-success">SUBMIT</button>
+			</form>
 			<br>
 			<h4 class="text-center"><b>(OR)</b></h4>
 			<br>
 			<div class="form-group">
 				<form method = "POST" name = "excel-form" action = "{{url}}" enctype="multipart/form-data">
 				    <input type="file" id="studentscsv" name="csvfile" >
-				    <p class="help-block">(Please upload a students list in .csv format.)</p>
+				    <p class="help-block">(Please upload a file with .csv format consisting of list of student emailId's.)</p>
 				    <input type = "hidden" name = "examid" value = "{{examid}}">
 				    <button type = "submit" class="btn btn-md btn-success" id = "add_student">Add</button>
 				</form>
@@ -418,16 +423,16 @@ table {
 	                }
         		}
 	        ],
-	        "columnDefs": [
-	            {
-	                "targets": [ 4 ],
-	                "visible": false,
-	            },
-	            {
-	                "targets": [ 5 ],
-	                "visible": false,
-	            }
-        	]
+	        // "columnDefs": [
+	        //     {
+	        //         "targets": [ 4 ],
+	        //         "visible": false,
+	        //     },
+	        //     {
+	        //         "targets": [ 5 ],
+	        //         "visible": false,
+	        //     }
+        	// ]
 	    });
 	    $("#batch-select,#section-select").change(function() {
 	    	clearStudents();
