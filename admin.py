@@ -1028,7 +1028,14 @@ class CreateTest(webapp2.RequestHandler):
           examid = self.request.get("examid")
           # examid = int(time.mktime(datetime_object.timetuple()))
           vaild = AdminDetails.query(AdminDetails.examid==examid).get()
-          if datetime_object > datetime.datetime.now():
+          # print "Test Time: " 
+          # print datetime_object
+          # print "current Time "
+          current_time = datetime.datetime.now().replace(second=0, microsecond=0) + datetime.timedelta(hours=5, minutes=30)
+          # print datetime.datetime.now().isoformat().strftime("%Y-%m-%d %H:%M")
+          # print current_time
+
+          if datetime_object > current_time:
             if not vaild:
               AdminDetails(examid=examid,datetime=datetime_object,setname=qset,emailid=user.email(),hosted=False, students=[]).put()      
               test.append(date)
