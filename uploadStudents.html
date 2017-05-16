@@ -249,8 +249,19 @@ table {
             contentType: 'application/json',
             url: '/admin/hostTest',
             data: JSON.stringify( {"hostStudentList":validStudents,"examid":'{{examid}}'})
-        }).done(function () {
-        	alert("{{examid}} is hosted");
+        }).done(function (data) {
+        	console.log("dataaaaaaaaaaaaaaaaaa::::::: ")
+        	data =  JSON.parse(data)
+        	console.log(data)
+        	console.log(typeof(data))
+        	console.log('checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+        	console.log(data['check_existance'])
+        	if(data["check_existance"]){
+        		enableHostTestBtn(data);
+        	}
+        	else {
+	        	alert("{{examid}} is hosted");
+        	}
         });
 
 		
@@ -300,34 +311,24 @@ table {
 
 	
 
-	// var flag = false;
-	var checkb = function(rollnumber,id) {
-		$("#"+rollnumber).click(function() {
-			console.log(":::::::::::::::::::::::::::::::::::::")
-			if($(this).prop('checked')) {
-				// console.log($(this));
-				validStudents[id] = true;
-				// console.log(validStudents);
-				// flag = true;
-			}
-			else {
-				delete validStudents[id];
-				// console.log(validStudents);
-			}
-			enableHostTestBtn();
-		});	
-		
-	} 
+	
 			// console.log("{{empty}}")
 	
-	var enableHostTestBtn = function() {
-		if (Object.keys(validStudents).length > 0){
-			// console.log("enable");
-			$("#host-test").attr("disabled",false);
+	var enableHostTestBtn = function(data) {
+		console.log(data["check_existance"])
+		console.log(")))))))))))))))))))))))))))))))))))))))))))))")
+		if(data["check_existance"]) {
+			$("#host-test").attr("disabled",true);
 		}
 		else {
-			console.log("disabled");
-			$("#host-test").attr("disabled",true);
+			if (Object.keys(validStudents).length > 0){
+			// console.log("enable");
+				$("#host-test").attr("disabled",false);
+			}
+			else {
+				console.log("disabled");
+				$("#host-test").attr("disabled",true);
+			}
 		}
 	}
 	
@@ -412,7 +413,9 @@ table {
                 				all_students_list.push(row.email);
                 				// console.log(">>>>"+all_students_list);
                 			}
-                				checkb(row.rollno,row.email);
+
+                			
+                				// checkb(row.rollno,row.email);
 	                		// }
 	                		// console.log(row.email);
 	                		return '<input type="checkbox" id = "'+row.rollno+'" style = "width : 25px;height : 25px" class="editor-active">';
@@ -433,6 +436,31 @@ table {
 	        //         "visible": false,
 	        //     }
         	// ]
+        	"drawCallback": function( settings ) {
+		        var api = this.api();
+		        $(".editor-active").click(function() {
+					console.log(":::::::::::::::::::::::::::::::::::::")
+					console.log($(this))
+					console.log($(this).parent().siblings()[2].innerHTML)
+					var email = $(this).parent().siblings()[2].innerHTML
+					if($(this).prop('checked')) {
+					// 	// console.log($(this));
+					 	validStudents[email] = true;
+					// 	// flag = true;
+					}
+					else {
+					 	delete validStudents[email];
+					// 	// console.log(validStudents);
+					}
+					console.log(validStudents);
+
+					enableHostTestBtn({});
+				});	
+		
+		 
+		        // Output the data for the visible rows to the browser's console
+		        console.log("drawCallback");
+		    }
 	    });
 	    $("#batch-select,#section-select").change(function() {
 	    	clearStudents();
@@ -440,7 +468,7 @@ table {
 	    	table.draw();
 		});
 
-		    $("#select-all").click(function() {
+	    $("#select-all").click(function() {
 			var temp_list = {};
 			if ($("#select-all").prop('checked')) {
 				for (var j = 0; j <= validStudents.length; j ++) {
@@ -467,12 +495,6 @@ table {
 		});
 
 
-
-
-
-
-
-
 	});
 	// $("#batch-select,#section-select").change(function() {
 	// 		batchSelect = $("#batch-select").val();
@@ -486,6 +508,9 @@ table {
 </script>
 
 <script>
+// for(var m = 0,n = 0; m <= all_students_rollnumbers.length && n <=all_students_list.length; m ++, n++) {
+// 			checkb(all_students_rollnumbers[m],all_students_list[n]);			
+// 		}
 		// document.getElementById("button3").onclick = function () {
 		// 	// var student = {}
 		// 	// student["studentname"]  = $("#stuname").val();

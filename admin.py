@@ -1372,35 +1372,44 @@ class HostTest(webapp2.RequestHandler):
     json_request= json.loads(self.request.body)
     host_student_list = json_request[u'hostStudentList']
     examid = str(json_request[u'examid'])
-
-    print "HOST_STU"
-    print host_student_list
-    print "examid : "
-    print examid
-    # examid = self.request.get("examid");
-    details = AdminDetails.query(AdminDetails.examid == examid).fetch()
-    admin_email = details[0].emailid
-    print "ADMIN: "
-    print admin_email
-    host_time = details[0].datetime
-    print "host_TIME: "
-    print host_time
-    hosted = False
-    for student in  host_student_list:
-      row = userDetails.query(userDetails.email == str(student)).fetch()
-      lc = row[0].learningcenter
-      print "lc: "
-      print lc
-      print "row"
-      print row
-      TestDetails(email = str(student), teststime= host_time,learningcenter = lc, testId =examid, admin = admin_email).put()
-      hosted = True
+    exists =  False
     template_values = {}
-    template_values['hosted'] = hosted
-    template_values['examid'] = examid
+    check_if_already_exists = TestDetails.query(TestDetails.testId == examid).fetch()
+    if(check_if_already_exists):
+      exists = True
+      template_values['check_existance'] = exists
+    else:
+      print "HOST_STU"
+      print host_student_list
+      print "examid : "
+      print examid
+      # examid = self.request.get("examid");
+      details = AdminDetails.query(AdminDetails.examid == examid).fetch()
+      admin_email = details[0].emailid
+      print "ADMIN: "
+      print admin_email
+      host_time = details[0].datetime
+      print "host_TIME: "
+      print host_time
+      hosted = False
+      for student in  host_student_list:
+        row = userDetails.query(userDetails.email == str(student)).fetch()
+        lc = row[0].learningcenter
+        print "lc: "
+        print lc
+        print "row"
+        print row
+        TestDetails(email = str(student), teststime= host_time,learningcenter = lc, testId =examid, admin = admin_email).put()
+        hosted = True
+      template_values['hosted'] = hosted
+      template_values['examid'] = examid
+      template_values['check_existance'] = hosted
     # self.redirect("/admin/uploadStudents?examid=" +examid+ "&hosted="+str(hosted))
+    
+    print "existance: "
+    print template_values['check_existance']
     template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
-    self.response.write(template.render(template_values))
+    self.response.write(json.dumps(template_values))
 
 
         
