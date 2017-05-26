@@ -28,7 +28,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com','swathivemuri4@gmail.com','ananyaannu22@gmail.com','anjanikumar1802@gmail.com']; 
+ADMIN_USER_IDS=['vy@fju.us','pg@fju.us','akhila1912@gmail.com','swathivemuri4@gmail.com','ananyaannu22@gmail.com','anjanikumar1802@gmail.com','santoshini.banda@gmail.com','himasaisri1234@gmail.com','apoorva.balireddy@gmail.com','nvdkrishna7@gmail.com','sowjanya.challa08@gmail.com','srilekhakatkam@gmail.com']; 
 a1_start=101;a1_end=301;a2_start=301;a2_end=401;a3_start=401;a3_end=601;a4_start=601;a4_end=701;
 a5_start=701;a5_end=801;e1_start=801;e1_end=1201;e2_start=1201;e2_end=1601;e3_start=1601;e3_end=1701;
 e4_start=1701;e4_end=1801;t1_start=1801;t1_end=2201;t2_start=2201;t2_end=2601;
@@ -1403,11 +1403,7 @@ class HostTest(webapp2.RequestHandler):
         hosted = True
       template_values['hosted'] = hosted
       template_values['examid'] = examid
-      template_values['check_existance'] = hosted
     # self.redirect("/admin/uploadStudents?examid=" +examid+ "&hosted="+str(hosted))
-    
-    print "existance: "
-    print template_values['check_existance']
     template= JINJA_ENVIRONMENT.get_template('uploadStudents.html')
     self.response.write(json.dumps(template_values))
 

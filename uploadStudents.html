@@ -73,7 +73,7 @@ table {
 </head>
 <body>
 	<script>
-		var validStudents = {}
+		var validStudents = {}, testHosted = false;
 	</script>
 	{%if empty%}
 		{%for i in validStudentList%}
@@ -106,7 +106,25 @@ table {
 			</table><br>
 			<button class="btn btn-primary btn-md" style = "float:left" id="host-test" disabled> Host Test </button>
 			<a href= "/admin/deleteTest?examid={{examid}}" id = "delete-btn" class="btn btn-primary btn-md"type="button">Delete Test</a>
+			<button type="button" class="btn btn-info" data-target="#selected-students-modal" id="show-selected-students">Show Selected Students</button>
 		</div>
+		  <!-- Modal -->
+		  <div class="modal modal-lg fade" id="selected-students-modal" role="dialog">
+		    <div class="modal-dialog modal-sm">
+		      <div class="modal-content">
+		        <div class="modal-header">
+		          <button type="button" class="close" data-dismiss="modal">&times;</button>
+		          <h4 class="modal-title">Selected Students</h4>
+		        </div>
+		        <div class="modal-body">
+		          <div class="selected-students"></div>
+		        </div>
+		        <div class="modal-footer">
+		          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
 		<div class="col-md-12">
 			<br><h2> Add Students </h2>		
 		</div>
@@ -257,18 +275,41 @@ table {
         	console.log('checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
         	console.log(data['check_existance'])
         	if(data["check_existance"]){
-        		enableHostTestBtn(data);
+        		alert("{{examid}} already taken");
+        		
         	}
-        	else {
+        	else if(data['hosted']){
+        		console.log("Test host successfull :)");
 	        	alert("{{examid}} is hosted");
+	        	$('.editor-active').each(function(){
+	        		if($(this).prop('checked')){
+	        			$(this).attr('checked', false);
+	        			$(this).attr('disabled', true);
+	        		}
+	        	});
         	}
+        	enableHostTestBtn(data);
         });
-
-		
 		// $.post('/admin/hostTest',{"hostStudentList":validStudents,"examid" : '{{examid}}'},function(data){
 		// 	alert("{{examid}} is hosted");
 		// });
 	});
+	
+	$("#show-selected-students").click(function(){
+		$("#selected-students-modal").modal("show");
+	});
+
+	$("#selected-students-modal").on('show.bs.modal', function () {
+        if(Object.keys(validStudents).length > 0){
+			$('.selected-students').html("<ol>");
+			for(var email in validStudents){
+				$('.selected-students').append("<li>"+email+"</li>");
+				console.log(email);
+			}
+			$('.selected-students').append("</ol>");
+		}
+		else $('.selected-students').html("<p>Please select students to display here..</p>");
+    });
 	function getData(examid){
 		$.get( "/admin/getexamdetails?examid="+examid, function( data ) {
 		  data = JSON.parse(data);
@@ -314,10 +355,8 @@ table {
 	
 			// console.log("{{empty}}")
 	
-	var enableHostTestBtn = function(data) {
-		console.log(data["check_existance"])
-		console.log(")))))))))))))))))))))))))))))))))))))))))))))")
-		if(data["check_existance"]) {
+	var enableHostTestBtn = function(data){
+		if(data["check_existance"] || data['hosted']) {
 			$("#host-test").attr("disabled",true);
 		}
 		else {
@@ -489,7 +528,7 @@ table {
 					validStudents[temp_list[k]] = true;
 				}
 			}
-			enableHostTestBtn();
+			enableHostTestBtn({});
 			// console.log(validStudents);
 			table.draw();
 		});
